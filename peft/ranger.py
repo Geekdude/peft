@@ -44,7 +44,7 @@ C0 = np.array([
     [1, 1, 0]
 ])
 
-def schedule_dag(dag, computation_matrix=W0, communication_matrix=C0, proc_schedules=None, time_offset=0, relabel_nodes=True):
+def schedule_dag(dag, computation_matrix=W0, communication_matrix=C0, proc_schedules=None, time_offset=0, relabel_nodes=True, manual_order=[]):
     """
     Given an application DAG and a set of matrices specifying PE bandwidth and (task, pe) execution times, computes the HEFT schedule
     of that DAG onto that set of PEs
@@ -60,7 +60,8 @@ def schedule_dag(dag, computation_matrix=W0, communication_matrix=C0, proc_sched
         'numExistingJobs': 0,
         'time_offset': time_offset,
         'root_node': None,
-        'optimistic_cost_table': None
+        'optimistic_cost_table': None,
+        'manual_order': manual_order
     }
     _self = SimpleNamespace(**_self)
 
@@ -94,38 +95,64 @@ def schedule_dag(dag, computation_matrix=W0, communication_matrix=C0, proc_sched
     logger.debug(""); logger.debug("====================== Performing Optimistic Cost Table Computation ======================\n"); logger.debug("")
     _self.optimistic_cost_table = _compute_optimistic_cost_table(_self, dag)
 
-    logger.debug(""); logger.debug("====================== Computing EFT for each (task, processor) pair and scheduling in order of decreasing Rank-U ======================"); logger.debug("")
-    sorted_nodes = sorted(dag.nodes(), key=lambda node: dag.nodes()[node]['rank'], reverse=True)
-    if sorted_nodes[0] != root_node:
-        logger.debug("Root node was not the first node in the sorted list. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
-        idx = sorted_nodes.index(root_node)
-        sorted_nodes[idx], sorted_nodes[0] = sorted_nodes[0], sorted_nodes[idx]
-    logger.debug(f"Scheduling tasks in this order: {sorted_nodes}")
-    for node in sorted_nodes:
-        if _self.task_schedules[node] is not None:
-            continue
-        minTaskSchedule = ScheduleEvent(node, inf, inf, -1)
-        minOptimisticCost = inf
-        for proc in range(len(communication_matrix)):
+    # Run the schedular.
+    if len(_self.manual_order) == 0: 
+        logger.debug(""); logger.debug("====================== Computing EFT for each (task, processor) pair and scheduling in order of decreasing Rank-U ======================"); logger.debug("")
+        sorted_nodes = sorted(dag.nodes(), key=lambda node: dag.nodes()[node]['rank'], reverse=True)
+        if sorted_nodes[0] != root_node:
+            logger.debug("Root node was not the first node in the sorted list. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
+            idx = sorted_nodes.index(root_node)
+            sorted_nodes[idx], sorted_nodes[0] = sorted_nodes[0], sorted_nodes[idx]
+        logger.debug(f"Scheduling tasks in this order: {sorted_nodes}")
+        for node in sorted_nodes:
+            if _self.task_schedules[node] is not None:
+                continue
+            minTaskSchedule = ScheduleEvent(node, inf, inf, -1)
+            minOptimisticCost = inf
+            for proc in range(len(communication_matrix)):
+                taskschedule = _compute_eft(_self, dag, node, proc)
+                if (taskschedule.end + _self.optimistic_cost_table[node][proc] < minTaskSchedule.end + minOptimisticCost):
+                    minTaskSchedule = taskschedule
+                    minOptimisticCost = _self.optimistic_cost_table[node][proc]
+            _self.task_schedules[node] = minTaskSchedule
+            _self.proc_schedules[minTaskSchedule.proc].append(minTaskSchedule)
+            _self.proc_schedules[minTaskSchedule.proc] = sorted(_self.proc_schedules[minTaskSchedule.proc], key=lambda schedule_event: schedule_event.end)
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug('\n')
+                for proc, jobs in _self.proc_schedules.items():
+                    logger.debug(f"Processor {proc} has the following jobs:")
+                    logger.debug(f"\t{jobs}")
+                logger.debug('\n')
+            for proc in range(len(_self.proc_schedules)):
+                for job in range(len(_self.proc_schedules[proc])-1):
+                    first_job = _self.proc_schedules[proc][job]
+                    second_job = _self.proc_schedules[proc][job+1]
+                    assert first_job.end <= second_job.start, \
+                    f"Jobs on a particular processor must finish before the next can begin, but job {first_job.task} on processor {first_job.proc} ends at {first_job.end} and its successor {second_job.task} starts at {second_job.start}"
+
+    # Use the manual schedule
+    else:
+        logger.debug(""); logger.debug("====================== Using the manual schedule ======================"); logger.debug("")
+        if _self.manual_order[0][0] != root_node:
+            logger.error("Root node was not the first node in the manual order. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
+        logger.debug(f"Scheduling tasks in this order: {[x[0] for x in _self.manual_order]}")
+        for node, proc in _self.manual_order:
             taskschedule = _compute_eft(_self, dag, node, proc)
-            if (taskschedule.end + _self.optimistic_cost_table[node][proc] < minTaskSchedule.end + minOptimisticCost):
-                minTaskSchedule = taskschedule
-                minOptimisticCost = _self.optimistic_cost_table[node][proc]
-        _self.task_schedules[node] = minTaskSchedule
-        _self.proc_schedules[minTaskSchedule.proc].append(minTaskSchedule)
-        _self.proc_schedules[minTaskSchedule.proc] = sorted(_self.proc_schedules[minTaskSchedule.proc], key=lambda schedule_event: schedule_event.end)
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug('\n')
-            for proc, jobs in _self.proc_schedules.items():
-                logger.debug(f"Processor {proc} has the following jobs:")
-                logger.debug(f"\t{jobs}")
-            logger.debug('\n')
-        for proc in range(len(_self.proc_schedules)):
-            for job in range(len(_self.proc_schedules[proc])-1):
-                first_job = _self.proc_schedules[proc][job]
-                second_job = _self.proc_schedules[proc][job+1]
-                assert first_job.end <= second_job.start, \
-                f"Jobs on a particular processor must finish before the next can begin, but job {first_job.task} on processor {first_job.proc} ends at {first_job.end} and its successor {second_job.task} starts at {second_job.start}"
+            _self.task_schedules[node] = taskschedule
+            _self.proc_schedules[taskschedule.proc].append(taskschedule)
+            _self.proc_schedules[taskschedule.proc] = sorted(_self.proc_schedules[taskschedule.proc], key=lambda schedule_event: schedule_event.end)
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug('\n')
+                for proc, jobs in _self.proc_schedules.items():
+                    logger.debug(f"Processor {proc} has the following jobs:")
+                    logger.debug(f"\t{jobs}")
+                logger.debug('\n')
+            for proc in range(len(_self.proc_schedules)):
+                for job in range(len(_self.proc_schedules[proc])-1):
+                    first_job = _self.proc_schedules[proc][job]
+                    second_job = _self.proc_schedules[proc][job+1]
+                    assert first_job.end <= second_job.start, \
+                    f"Jobs on a particular processor must finish before the next can begin, but job {first_job.task} on processor {first_job.proc} ends at {first_job.end} and its successor {second_job.task} starts at {second_job.start}"
 
     dict_output = {}
     for proc_num, proc_tasks in _self.proc_schedules.items():
@@ -295,7 +322,15 @@ def getTaskAndAcclNames(csv_file):
     for line in lines:
         tasks.append(line.split(',')[0].strip())
 
-    return tasks, accls
+    accls_r = {}
+    for i, v in enumerate(accls):
+        accls_r[v] = i
+
+    tasks_r = {}
+    for i, v in enumerate(tasks):
+        tasks_r[v] = i
+
+    return tasks, accls, tasks_r, accls_r
 
 def readCsvToDict(csv_file):
     """
@@ -328,6 +363,24 @@ def readDagMatrix(dag_file, show_dag=False):
 
     return dag
 
+def readManualOrder(order_csv, tasks_r, accls_r):
+    """
+    Given an input file consitity of (task, device map), read and parse into a scheduling order.
+    """
+    order = []
+
+    if order_csv:
+        with open(order_csv) as fd:
+            order_v = fd.readlines()
+
+        order_v.pop(0)
+
+        for o in order_v:
+            task, device = o.split(',')
+            order.append((tasks_r[task.strip()], accls_r[device.strip()]))
+
+    return order
+
 def generate_argparser():
     parser = argparse.ArgumentParser(description="A tool for finding PEFT schedules for given DAG task graphs")
     parser.add_argument("-d", "--dag_file",
@@ -348,6 +401,9 @@ def generate_argparser():
     parser.add_argument("-o", "--output",
                         help="Output format to use for results",
                         choices=['default', 'task'], default='default')
+    parser.add_argument("-m", "--manual", 
+                        help="Specify a csv file containing a manual order to follow. File contains (task, device map).",
+                        type=str, default="")
     return parser
 
 if __name__ == "__main__":
@@ -364,7 +420,10 @@ if __name__ == "__main__":
     communication_matrix = np.ones((computation_matrix.shape[1], computation_matrix.shape[1]))
     dag = readDagMatrix(args.dag_file, args.showDAG)
 
-    processor_schedules, task_schedules, dict_output = schedule_dag(dag, communication_matrix=communication_matrix, computation_matrix=computation_matrix)
+    tasks, accls, tasks_r, accls_r = getTaskAndAcclNames(args.task_execution_file)
+    order = readManualOrder(args.manual, tasks_r, accls_r)
+
+    processor_schedules, task_schedules, dict_output = schedule_dag(dag, communication_matrix=communication_matrix, computation_matrix=computation_matrix, manual_order=order)
 
     if args.output == 'default':
         for proc, jobs in processor_schedules.items():
@@ -372,7 +431,6 @@ if __name__ == "__main__":
             logger.info(f"\t{jobs}")
     else: # task
         print(f"taskname,start,end,duration,acclname")
-        tasks, accls = getTaskAndAcclNames(args.task_execution_file)
         for i, task in task_schedules.items():
             print(f"{tasks[i]},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
 

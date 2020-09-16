@@ -45,6 +45,13 @@
             "request": "launch",
             "module": "peft.ranger_toy",
             "args": ["-d", "2020-09-14-small-proc/communication_core1_512conv.csv", "-t", "2020-09-14-small-proc/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task"]
+        },
+        {
+            "name": "Python: manual order",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger_toy",
+            "args": ["-d", "2020-09-15-single/communication_core1_512conv.csv", "-t", "2020-09-15-single/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task", "-m", "2020-09-15-single/no_stream_order.csv", "-l", "DEBUG"]
         }
     ]
 }
