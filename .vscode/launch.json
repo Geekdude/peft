@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: RANGER PEFT",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger",
+            "args": ["-d", "test/ranger_task_connectivity.csv", "-c", "0", "-s", "3", "-t", "test/peftgraph_task_exe_time.csv", "-l", "DEBUG"]
+        },
+        {
+            "name": "Python: RANGER Inception",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger",
+            "args": ["-d", "model_dep_incv3_task_connectivity.csv", "-c", "0", "-s", "3", "-t", "test/reordered_stream.csv", "-l", "DEBUG"]
+        },
+        {
+            "name": "Python: Reorder",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.reorder_exe_time",
+            "args": ["-d", "model_dep_incv3_task_connectivity.csv", "-t", "test/stream.csv"]
+        },
+        {
+            "name": "Python: dep",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.dep_convert",
+            "args": ["model_dep_incv3.dep"]
+        },
+        {
+            "name": "Python: merge",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.init_time_merge",
+            "args": ["-t", "2020-09-14-perf-data/no_stream_comp_only_sorted.csv", "-i", "2020-09-14-perf-data/init_comm_core1_512conv_nostream.csv"]
+        },
+        {
+            "name": "Python: incv3 stream",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger_toy",
+            "args": ["-d", "2020-09-14-small-proc/communication_core1_512conv.csv", "-t", "2020-09-14-small-proc/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task"]
+        }
+    ]
+}
