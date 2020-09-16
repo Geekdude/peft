@@ -1,0 +1,190 @@
+task,BatchNormalizationNS32,BatchNormalizationNS64,BatchNormalizationNS256,BatchNormalizationNS8,BatchNormalizationNS1024,BatchNormalizationNS16,BatchNormalizationNS512,BatchNormalizationNS128,Conv2DNS512,Conv2DNS1024,Conv2DNS256,Conv2DNS64,Conv2DNS128,DenseNS64,DenseNS8,DenseNS32,DenseNS512,DenseNS1024,DenseNS256,DenseNS128,DenseNS16
+conv2d_1, inf, inf, inf, inf, inf, inf, inf, inf, 38408, 19676, 75872, 300657, 150800, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_1,22201,11101,2776,88804,694,44402,1388,5551,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_2, inf, inf, inf, inf, inf, inf, inf, inf, 396254, 201773, 785216, 3118988, 1563140, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_2,21609,10805,2702,86436,676,43218,1351,5403,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_3, inf, inf, inf, inf, inf, inf, inf, inf, 791560, 402598, 1569484, 6237028, 3125332, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_3,43218,21609,5403,172872,1351,86436,2702,10805,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_4, inf, inf, inf, inf, inf, inf, inf, inf, 57031, 30386, 110321, 430061, 216901, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_4,13323,6662,1666,53290,417,26645,833,3331,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_5, inf, inf, inf, inf, inf, inf, inf, inf, 1460746, 780211, 2821816, 10988236, 5543956, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_5,30246,15123,3781,120984,946,60492,1891,7562,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_9, inf, inf, inf, inf, inf, inf, inf, inf, 38033, 23333, 67433, 243833, 126233, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_7, inf, inf, inf, inf, inf, inf, inf, inf, 29388, 18363, 51438, 183738, 95538, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_6, inf, inf, inf, inf, inf, inf, inf, inf, 38186, 23486, 67586, 243986, 126386, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_12, inf, inf, inf, inf, inf, inf, inf, inf, 19304, 11954, 34004, 122204, 63404, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_9,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_7,1838,919,230,7350,58,3675,115,460,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_6,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_12,1225,613,154,4900,39,2450,77,307,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_10, inf, inf, inf, inf, inf, inf, inf, inf, 172930, 106780, 305230, 1099030, 569830, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_8, inf, inf, inf, inf, inf, inf, inf, inf, 239446, 147571, 423196, 1525696, 790696, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_10,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_8,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_11, inf, inf, inf, inf, inf, inf, inf, inf, 258877, 159652, 457327, 1648027, 854227, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_11,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_16, inf, inf, inf, inf, inf, inf, inf, inf, 51836, 32236, 91036, 326236, 169436, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_14, inf, inf, inf, inf, inf, inf, inf, inf, 38766, 24066, 68166, 244566, 126966, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_13, inf, inf, inf, inf, inf, inf, inf, inf, 50692, 31092, 89892, 325092, 168292, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_19, inf, inf, inf, inf, inf, inf, inf, inf, 50956, 31356, 90156, 325356, 168556, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_16,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_14,1838,919,230,7350,58,3675,115,460,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_13,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_19,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_17, inf, inf, inf, inf, inf, inf, inf, inf, 172294, 106144, 304594, 1098394, 569194, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_15, inf, inf, inf, inf, inf, inf, inf, inf, 238998, 147123, 422748, 1525248, 790248, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_17,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_15,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_18, inf, inf, inf, inf, inf, inf, inf, inf, 257926, 158701, 456376, 1647076, 853276, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_18,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_23, inf, inf, inf, inf, inf, inf, inf, inf, 57892, 35842, 101992, 366592, 190192, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_21, inf, inf, inf, inf, inf, inf, inf, inf, 43759, 27222, 76834, 275284, 142984, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_20, inf, inf, inf, inf, inf, inf, inf, inf, 57694, 35644, 101794, 366394, 189994, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_26, inf, inf, inf, inf, inf, inf, inf, inf, 57366, 35316, 101466, 366066, 189666, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_23,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_21,1838,919,230,7350,58,3675,115,460,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_20,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_26,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_24, inf, inf, inf, inf, inf, inf, inf, inf, 171623, 105473, 303923, 1097723, 568523, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_22, inf, inf, inf, inf, inf, inf, inf, inf, 238502, 146627, 422252, 1524752, 789752, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_24,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_22,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_25, inf, inf, inf, inf, inf, inf, inf, inf, 258875, 159650, 457325, 1648025, 854225, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_25,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_28, inf, inf, inf, inf, inf, inf, inf, inf, 56930, 34880, 101030, 365630, 189230, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_27, inf, inf, inf, inf, inf, inf, inf, inf, 1282063, 1001155, 1843879, 5214775, 2967511, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_28,2450,1225,307,9800,77,4900,154,613,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_27,3468,1734,434,13872,109,6936,217,867,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_29, inf, inf, inf, inf, inf, inf, inf, inf, 172306, 106156, 304606, 1098406, 569206, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_29,3675,1838,460,14700,115,7350,230,919,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_30, inf, inf, inf, inf, inf, inf, inf, inf, 106541, 83132, 153359, 434267, 246995, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_30,867,434,109,3468,28,1734,55,217,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_35, inf, inf, inf, inf, inf, inf, inf, inf, 126688, 98944, 182176, 515104, 293152, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_32, inf, inf, inf, inf, inf, inf, inf, inf, 126888, 99144, 182376, 515304, 293352, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_31, inf, inf, inf, inf, inf, inf, inf, inf, 190314, 148698, 273546, 772938, 440010, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_40, inf, inf, inf, inf, inf, inf, inf, inf, 190766, 149150, 273998, 773390, 440462, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_35,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_32,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_31,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_40,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_36, inf, inf, inf, inf, inf, inf, inf, inf, 148394, 116026, 213130, 601546, 342602, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_33, inf, inf, inf, inf, inf, inf, inf, inf, 147850, 115482, 212586, 601002, 342058, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_36,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_33,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_37, inf, inf, inf, inf, inf, inf, inf, inf, 147190, 114822, 211926, 600342, 341398, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_34, inf, inf, inf, inf, inf, inf, inf, inf, 221031, 172479, 318135, 900759, 512343, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_37,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_34,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_38, inf, inf, inf, inf, inf, inf, inf, inf, 146644, 114276, 211380, 599796, 340852, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_38,1156,578,145,4624,37,2312,73,289,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_39, inf, inf, inf, inf, inf, inf, inf, inf, 222717, 174165, 319821, 902445, 514029, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_39,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_45, inf, inf, inf, inf, inf, inf, inf, inf, 159151, 124471, 228511, 644671, 367231, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_42, inf, inf, inf, inf, inf, inf, inf, inf, 158438, 123758, 227798, 643958, 366518, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_41, inf, inf, inf, inf, inf, inf, inf, inf, 191024, 149408, 274256, 773648, 440720, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_50, inf, inf, inf, inf, inf, inf, inf, inf, 189712, 148096, 272944, 772336, 439408, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_45,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_42,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_41,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_50,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_46, inf, inf, inf, inf, inf, inf, inf, inf, 229581, 179006, 330731, 937631, 533031, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_43, inf, inf, inf, inf, inf, inf, inf, inf, 229767, 179192, 330917, 937817, 533217, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_46,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_43,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_47, inf, inf, inf, inf, inf, inf, inf, inf, 229557, 178982, 330707, 937607, 533007, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_44, inf, inf, inf, inf, inf, inf, inf, inf, 276032, 215342, 397412, 1125692, 640172, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_47,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_44,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_48, inf, inf, inf, inf, inf, inf, inf, inf, 230426, 179851, 331576, 938476, 533876, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_48,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_49, inf, inf, inf, inf, inf, inf, inf, inf, 276419, 215729, 397799, 1126079, 640559, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_49,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_55, inf, inf, inf, inf, inf, inf, inf, inf, 159403, 124723, 228763, 644923, 367483, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_52, inf, inf, inf, inf, inf, inf, inf, inf, 158466, 123786, 227826, 643986, 366546, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_51, inf, inf, inf, inf, inf, inf, inf, inf, 190374, 148758, 273606, 772998, 440070, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_60, inf, inf, inf, inf, inf, inf, inf, inf, 189534, 147918, 272766, 772158, 439230, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_55,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_52,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_51,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_60,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_56, inf, inf, inf, inf, inf, inf, inf, inf, 230359, 179784, 331509, 938409, 533809, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_53, inf, inf, inf, inf, inf, inf, inf, inf, 229516, 178941, 330666, 937566, 532966, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_56,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_53,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_57, inf, inf, inf, inf, inf, inf, inf, inf, 230664, 180089, 331814, 938714, 534114, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_54, inf, inf, inf, inf, inf, inf, inf, inf, 276642, 215952, 398022, 1126302, 640782, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_57,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_54,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_58, inf, inf, inf, inf, inf, inf, inf, inf, 230431, 179856, 331581, 938481, 533881, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_58,1445,723,181,5780,46,2890,91,362,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_59, inf, inf, inf, inf, inf, inf, inf, inf, 276550, 215860, 397930, 1126210, 640690, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_59,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_65, inf, inf, inf, inf, inf, inf, inf, inf, 188161, 146545, 271393, 770785, 437857, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_62, inf, inf, inf, inf, inf, inf, inf, inf, 189356, 147740, 272588, 771980, 439052, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_61, inf, inf, inf, inf, inf, inf, inf, inf, 190112, 148496, 273344, 772736, 439808, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_70, inf, inf, inf, inf, inf, inf, inf, inf, 188500, 146884, 271732, 771124, 438196, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_65,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_62,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_61,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_70,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_66, inf, inf, inf, inf, inf, inf, inf, inf, 333694, 260866, 479350, 1353286, 770662, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_63, inf, inf, inf, inf, inf, inf, inf, inf, 330024, 257196, 475680, 1349616, 766992, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_66,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_63,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_67, inf, inf, inf, inf, inf, inf, inf, inf, 330368, 257540, 476024, 1349960, 767336, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_64, inf, inf, inf, inf, inf, inf, inf, inf, 329322, 256494, 474978, 1348914, 766290, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_67,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_64,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_68, inf, inf, inf, inf, inf, inf, inf, inf, 329938, 257110, 475594, 1349530, 766906, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_68,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_69, inf, inf, inf, inf, inf, inf, inf, inf, 329478, 256650, 475134, 1349070, 766446, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_69,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_73, inf, inf, inf, inf, inf, inf, inf, inf, 188482, 146866, 271714, 771106, 438178, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_71, inf, inf, inf, inf, inf, inf, inf, inf, 188120, 146504, 271352, 770744, 437816, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_73,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_71,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_74, inf, inf, inf, inf, inf, inf, inf, inf, 329414, 256586, 475070, 1349006, 766382, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_72, inf, inf, inf, inf, inf, inf, inf, inf, 463356, 428796, 532476, 947196, 670716, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_74,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_72,640,320,80,2560,20,1280,40,160,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_75, inf, inf, inf, inf, inf, inf, inf, inf, 330024, 257196, 475680, 1349616, 766992, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_75,1734,867,217,6936,55,3468,109,434,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_76, inf, inf, inf, inf, inf, inf, inf, inf, 278894, 258158, 320366, 569198, 403310, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_76,384,192,48,1536,12,768,24,96,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_81, inf, inf, inf, inf, inf, inf, inf, inf, 480618, 444778, 552298, 982378, 695658, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_78, inf, inf, inf, inf, inf, inf, inf, inf, 412390, 381670, 473830, 842470, 596710, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_77, inf, inf, inf, inf, inf, inf, inf, inf, 343528, 317928, 394728, 701928, 497128, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_85, inf, inf, inf, inf, inf, inf, inf, inf, 206136, 190776, 236856, 421176, 298296, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_81,896,448,112,3584,28,1792,56,224,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_78,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_77,640,320,80,2560,20,1280,40,160,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_85,384,192,48,1536,12,768,24,96,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_82, inf, inf, inf, inf, inf, inf, inf, inf, 1297366, 1200598, 1490902, 2652118, 1877974, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_79, inf, inf, inf, inf, inf, inf, inf, inf, 370908, 343260, 426204, 757980, 536796, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_80, inf, inf, inf, inf, inf, inf, inf, inf, 371532, 343884, 426828, 758604, 537420, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_82,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_79,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_80,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_83, inf, inf, inf, inf, inf, inf, inf, inf, 370750, 343102, 426046, 757822, 536638, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_84, inf, inf, inf, inf, inf, inf, inf, inf, 370930, 343282, 426226, 758002, 536818, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_83,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_84,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_90, inf, inf, inf, inf, inf, inf, inf, inf, 769666, 712322, 884354, 1572482, 1113730, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_87, inf, inf, inf, inf, inf, inf, inf, inf, 659068, 609916, 757372, 1347196, 953980, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_86, inf, inf, inf, inf, inf, inf, inf, inf, 549468, 508508, 631388, 1122908, 795228, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_94, inf, inf, inf, inf, inf, inf, inf, inf, 329906, 305330, 379058, 673970, 477362, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_90,896,448,112,3584,28,1792,56,224,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_87,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_86,640,320,80,2560,20,1280,40,160,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_94,384,192,48,1536,12,768,24,96,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_91, inf, inf, inf, inf, inf, inf, inf, inf, 1297852, 1201084, 1491388, 2652604, 1878460, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_88, inf, inf, inf, inf, inf, inf, inf, inf, 371454, 343806, 426750, 758526, 537342, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_89, inf, inf, inf, inf, inf, inf, inf, inf, 371330, 343682, 426626, 758402, 537218, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_91,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_88,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_89,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+conv2d_92, inf, inf, inf, inf, inf, inf, inf, inf, 370622, 342974, 425918, 757694, 536510, inf, inf, inf, inf, inf, inf, inf, inf
+conv2d_93, inf, inf, inf, inf, inf, inf, inf, inf, 370772, 343124, 426068, 757844, 536660, inf, inf, inf, inf, inf, inf, inf, inf
+batch_normalization_92,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+batch_normalization_93,768,384,96,3072,24,1536,48,192,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf
+predictions, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, inf, 33615, 257615, 65615, 5615, 3615, 9615, 17615, 129615

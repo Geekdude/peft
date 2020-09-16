@@ -1,0 +1,190 @@
+task,BatchNormalizationNS8,Conv2DNS1024,DenseNS128
+conv2d_1, inf,19676, inf
+batch_normalization_1,88804,inf,inf
+conv2d_2, inf,201773, inf
+batch_normalization_2,86436,inf,inf
+conv2d_3, inf,402598, inf
+batch_normalization_3,172872,inf,inf
+conv2d_4, inf,30386, inf
+batch_normalization_4,53290,inf,inf
+conv2d_5, inf,780211, inf
+batch_normalization_5,120984,inf,inf
+conv2d_9, inf,23333, inf
+conv2d_7, inf,18363, inf
+conv2d_6, inf,23486, inf
+conv2d_12, inf,11954, inf
+batch_normalization_9,9800,inf,inf
+batch_normalization_7,7350,inf,inf
+batch_normalization_6,9800,inf,inf
+batch_normalization_12,4900,inf,inf
+conv2d_10, inf,106780, inf
+conv2d_8, inf,147571, inf
+batch_normalization_10,14700,inf,inf
+batch_normalization_8,9800,inf,inf
+conv2d_11, inf,159652, inf
+batch_normalization_11,14700,inf,inf
+conv2d_16, inf,32236, inf
+conv2d_14, inf,24066, inf
+conv2d_13, inf,31092, inf
+conv2d_19, inf,31356, inf
+batch_normalization_16,9800,inf,inf
+batch_normalization_14,7350,inf,inf
+batch_normalization_13,9800,inf,inf
+batch_normalization_19,9800,inf,inf
+conv2d_17, inf,106144, inf
+conv2d_15, inf,147123, inf
+batch_normalization_17,14700,inf,inf
+batch_normalization_15,9800,inf,inf
+conv2d_18, inf,158701, inf
+batch_normalization_18,14700,inf,inf
+conv2d_23, inf,35842, inf
+conv2d_21, inf,27222, inf
+conv2d_20, inf,35644, inf
+conv2d_26, inf,35316, inf
+batch_normalization_23,9800,inf,inf
+batch_normalization_21,7350,inf,inf
+batch_normalization_20,9800,inf,inf
+batch_normalization_26,9800,inf,inf
+conv2d_24, inf,105473, inf
+conv2d_22, inf,146627, inf
+batch_normalization_24,14700,inf,inf
+batch_normalization_22,9800,inf,inf
+conv2d_25, inf,159650, inf
+batch_normalization_25,14700,inf,inf
+conv2d_28, inf,34880, inf
+conv2d_27, inf,1001155, inf
+batch_normalization_28,9800,inf,inf
+batch_normalization_27,13872,inf,inf
+conv2d_29, inf,106156, inf
+batch_normalization_29,14700,inf,inf
+conv2d_30, inf,83132, inf
+batch_normalization_30,3468,inf,inf
+conv2d_35, inf,98944, inf
+conv2d_32, inf,99144, inf
+conv2d_31, inf,148698, inf
+conv2d_40, inf,149150, inf
+batch_normalization_35,4624,inf,inf
+batch_normalization_32,4624,inf,inf
+batch_normalization_31,6936,inf,inf
+batch_normalization_40,6936,inf,inf
+conv2d_36, inf,116026, inf
+conv2d_33, inf,115482, inf
+batch_normalization_36,4624,inf,inf
+batch_normalization_33,4624,inf,inf
+conv2d_37, inf,114822, inf
+conv2d_34, inf,172479, inf
+batch_normalization_37,4624,inf,inf
+batch_normalization_34,6936,inf,inf
+conv2d_38, inf,114276, inf
+batch_normalization_38,4624,inf,inf
+conv2d_39, inf,174165, inf
+batch_normalization_39,6936,inf,inf
+conv2d_45, inf,124471, inf
+conv2d_42, inf,123758, inf
+conv2d_41, inf,149408, inf
+conv2d_50, inf,148096, inf
+batch_normalization_45,5780,inf,inf
+batch_normalization_42,5780,inf,inf
+batch_normalization_41,6936,inf,inf
+batch_normalization_50,6936,inf,inf
+conv2d_46, inf,179006, inf
+conv2d_43, inf,179192, inf
+batch_normalization_46,5780,inf,inf
+batch_normalization_43,5780,inf,inf
+conv2d_47, inf,178982, inf
+conv2d_44, inf,215342, inf
+batch_normalization_47,5780,inf,inf
+batch_normalization_44,6936,inf,inf
+conv2d_48, inf,179851, inf
+batch_normalization_48,5780,inf,inf
+conv2d_49, inf,215729, inf
+batch_normalization_49,6936,inf,inf
+conv2d_55, inf,124723, inf
+conv2d_52, inf,123786, inf
+conv2d_51, inf,148758, inf
+conv2d_60, inf,147918, inf
+batch_normalization_55,5780,inf,inf
+batch_normalization_52,5780,inf,inf
+batch_normalization_51,6936,inf,inf
+batch_normalization_60,6936,inf,inf
+conv2d_56, inf,179784, inf
+conv2d_53, inf,178941, inf
+batch_normalization_56,5780,inf,inf
+batch_normalization_53,5780,inf,inf
+conv2d_57, inf,180089, inf
+conv2d_54, inf,215952, inf
+batch_normalization_57,5780,inf,inf
+batch_normalization_54,6936,inf,inf
+conv2d_58, inf,179856, inf
+batch_normalization_58,5780,inf,inf
+conv2d_59, inf,215860, inf
+batch_normalization_59,6936,inf,inf
+conv2d_65, inf,146545, inf
+conv2d_62, inf,147740, inf
+conv2d_61, inf,148496, inf
+conv2d_70, inf,146884, inf
+batch_normalization_65,6936,inf,inf
+batch_normalization_62,6936,inf,inf
+batch_normalization_61,6936,inf,inf
+batch_normalization_70,6936,inf,inf
+conv2d_66, inf,260866, inf
+conv2d_63, inf,257196, inf
+batch_normalization_66,6936,inf,inf
+batch_normalization_63,6936,inf,inf
+conv2d_67, inf,257540, inf
+conv2d_64, inf,256494, inf
+batch_normalization_67,6936,inf,inf
+batch_normalization_64,6936,inf,inf
+conv2d_68, inf,257110, inf
+batch_normalization_68,6936,inf,inf
+conv2d_69, inf,256650, inf
+batch_normalization_69,6936,inf,inf
+conv2d_73, inf,146866, inf
+conv2d_71, inf,146504, inf
+batch_normalization_73,6936,inf,inf
+batch_normalization_71,6936,inf,inf
+conv2d_74, inf,256586, inf
+conv2d_72, inf,428796, inf
+batch_normalization_74,6936,inf,inf
+batch_normalization_72,2560,inf,inf
+conv2d_75, inf,257196, inf
+batch_normalization_75,6936,inf,inf
+conv2d_76, inf,258158, inf
+batch_normalization_76,1536,inf,inf
+conv2d_81, inf,444778, inf
+conv2d_78, inf,381670, inf
+conv2d_77, inf,317928, inf
+conv2d_85, inf,190776, inf
+batch_normalization_81,3584,inf,inf
+batch_normalization_78,3072,inf,inf
+batch_normalization_77,2560,inf,inf
+batch_normalization_85,1536,inf,inf
+conv2d_82, inf,1200598, inf
+conv2d_79, inf,343260, inf
+conv2d_80, inf,343884, inf
+batch_normalization_82,3072,inf,inf
+batch_normalization_79,3072,inf,inf
+batch_normalization_80,3072,inf,inf
+conv2d_83, inf,343102, inf
+conv2d_84, inf,343282, inf
+batch_normalization_83,3072,inf,inf
+batch_normalization_84,3072,inf,inf
+conv2d_90, inf,712322, inf
+conv2d_87, inf,609916, inf
+conv2d_86, inf,508508, inf
+conv2d_94, inf,305330, inf
+batch_normalization_90,3584,inf,inf
+batch_normalization_87,3072,inf,inf
+batch_normalization_86,2560,inf,inf
+batch_normalization_94,1536,inf,inf
+conv2d_91, inf,1201084, inf
+conv2d_88, inf,343806, inf
+conv2d_89, inf,343682, inf
+batch_normalization_91,3072,inf,inf
+batch_normalization_88,3072,inf,inf
+batch_normalization_89,3072,inf,inf
+conv2d_92, inf,342974, inf
+conv2d_93, inf,343124, inf
+batch_normalization_92,3072,inf,inf
+batch_normalization_93,3072,inf,inf
+predictions, inf, inf,17615
