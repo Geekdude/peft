@@ -51,7 +51,14 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_toy",
-            "args": ["-d", "2020-09-15-single/communication_core1_512conv.csv", "-t", "2020-09-15-single/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task", "-m", "2020-09-15-single/no_stream_order.csv", "-l", "DEBUG"]
-        }
+            "args": ["-d", "2020-09-15-single/communication_core1_512conv.csv", "-t", "2020-09-15-single/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task", "-m", "2020-09-15-single/no_stream_order.csv", "-l", "DEBUG", "--idle"]
+        },
+        {
+            "name": "Python: incv3 stream idle",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.peft",
+            "args": ["-d", "2020-09-15-single/communication_core1_512conv_nostream.csv", "-p", "2020-09-15-single/communication_core1_512conv_nostream_resource_BW.csv", "-t", "2020-09-15-single/no_stream_taskwise_sorted.csv", "-o", "task", "--idle"]
+        },
     ]
 }

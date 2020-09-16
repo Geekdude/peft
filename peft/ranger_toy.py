@@ -44,7 +44,7 @@ C0 = np.array([
     [1, 1, 0]
 ])
 
-def schedule_dag(dag, computation_matrix=W0, communication_overhead=0, proc_schedules=None, relabel_nodes=True, manual_order=[]):
+def schedule_dag(dag, computation_matrix=W0, communication_overhead=0, proc_schedules=None, relabel_nodes=True, manual_order=[], include_idle=False):
     """
     Given an application DAG and a set of matrices specifying PE bandwidth and (task, pe) execution times, computes the HEFT schedule
     of that DAG onto that set of PEs
@@ -153,6 +153,34 @@ def schedule_dag(dag, computation_matrix=W0, communication_overhead=0, proc_sche
                     second_job = _self.proc_schedules[proc][job+1]
                     assert first_job.end <= second_job.start, \
                     f"Jobs on a particular processor must finish before the next can begin, but job {first_job.task} on processor {first_job.proc} ends at {first_job.end} and its successor {second_job.task} starts at {second_job.start}"
+
+    # Add the idle time
+    if include_idle:
+        _self.proc_schedules[-1] = []
+        sorted_events = []
+        for task in _self.task_schedules.values():
+            sorted_events.append((task.start, "start"))
+            sorted_events.append((task.end, "end"))
+
+        sorted_events = sorted(sorted_events, key=lambda x: x[0])
+
+        start = 0
+        count = 0
+        for t, s in sorted_events:
+            if s == "end":
+                count -= 1
+                start = t
+            elif s == "start":
+                if count == 0:
+                    end = t
+                    delta = end - start
+
+                    if delta > np.float(0): 
+                        event = ScheduleEvent(-1, start, end, -1)
+                        _self.task_schedules[len(_self.task_schedules)] = event
+                        _self.proc_schedules[-1].append(event)
+                        _self.proc_schedules[-1] = sorted(_self.proc_schedules[-1], key=lambda schedule_event: schedule_event.end)
+                count += 1
 
     dict_output = {}
     for proc_num, proc_tasks in _self.proc_schedules.items():
@@ -304,23 +332,23 @@ def getTaskAndAcclNames(csv_file):
     with open(csv_file) as fd:
         lines = fd.readlines()
 
-    accls = []
+    accls = {-1: "idle"}
     line = lines.pop(0).split(',')
     for i, a in enumerate(line):
         if i == 0:
             continue
-        accls.append(a.strip())
+        accls[i-1] = a.strip()
 
-    tasks = []
-    for line in lines:
-        tasks.append(line.split(',')[0].strip())
+    tasks = {-1: "idle"}
+    for i, line in enumerate(lines):
+        tasks[i] = line.split(',')[0].strip()
 
     accls_r = {}
-    for i, v in enumerate(accls):
+    for i, v in accls.items():
         accls_r[v] = i
 
     tasks_r = {}
-    for i, v in enumerate(tasks):
+    for i, v in tasks.items():
         tasks_r[v] = i
 
     return tasks, accls, tasks_r, accls_r
@@ -403,6 +431,9 @@ def generate_argparser():
     parser.add_argument("-m", "--manual", 
                         help="Specify a csv file containing a manual order to follow. File contains (task, device map).",
                         type=str, default="")
+    parser.add_argument("--idle",
+                        help="Include idle time in output.",
+                        action="store_true")
     return parser
 
 if __name__ == "__main__":
@@ -425,7 +456,7 @@ if __name__ == "__main__":
     tasks, accls, tasks_r, accls_r = getTaskAndAcclNames(args.task_execution_file)
     order = readManualOrder(args.manual, tasks_r, accls_r)
 
-    processor_schedules, task_schedules, dict_output = schedule_dag(dag, communication_overhead=args.communication_delay, computation_matrix=computation_matrix, manual_order=order)
+    processor_schedules, task_schedules, dict_output = schedule_dag(dag, communication_overhead=args.communication_delay, computation_matrix=computation_matrix, manual_order=order, include_idle=args.idle)
 
     if args.output == 'default':
         for proc, jobs in processor_schedules.items():
@@ -434,7 +465,7 @@ if __name__ == "__main__":
     else: # task
         print(f"taskname,start,end,duration,acclname")
         for i, task in task_schedules.items():
-            print(f"{tasks[i]},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
+            print(f"{tasks[task.task]},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
 
     if args.showGantt:
         showGanttChart(processor_schedules)
