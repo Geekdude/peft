@@ -1,0 +1,14 @@
+acc,BatchNormalization8,BatchNormalization256,BatchNormalization1024,BatchNormalization16,BatchNormalization512,BatchNormalization32,BatchNormalization128,BatchNormalization64,Conv2D1024,Conv2D64,Conv2D128,Conv2D256,Conv2D512
+BatchNormalization8,0,1,1,1,1,1,1,1,1,1,1,1,1
+BatchNormalization256,1,0,1,1,1,1,1,1,1,1,1,1,1
+BatchNormalization1024,1,1,0,1,1,1,1,1,1,1,1,1,1
+BatchNormalization16,1,1,1,0,1,1,1,1,1,1,1,1,1
+BatchNormalization512,1,1,1,1,0,1,1,1,1,1,1,1,1
+BatchNormalization32,1,1,1,1,1,0,1,1,1,1,1,1,1
+BatchNormalization128,1,1,1,1,1,1,0,1,1,1,1,1,1
+BatchNormalization64,1,1,1,1,1,1,1,0,1,1,1,1,1
+Conv2D1024,1,1,1,1,1,1,1,1,0,1,1,1,1
+Conv2D64,1,1,1,1,1,1,1,1,1,0,1,1,1
+Conv2D128,1,1,1,1,1,1,1,1,1,1,0,1,1
+Conv2D256,1,1,1,1,1,1,1,1,1,1,1,0,1
+Conv2D512,1,1,1,1,1,1,1,1,1,1,1,1,0
