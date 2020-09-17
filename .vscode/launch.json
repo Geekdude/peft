@@ -133,7 +133,7 @@
             "name": "Python: run_peft",
             "type": "python",
             "request": "launch",
-            "program": "2020-09-17-profiles/run_peft.py",
+            "program": "run_peft.py",
             "console": "integratedTerminal",
             "cwd": "2020-09-17-profiles"
         },
