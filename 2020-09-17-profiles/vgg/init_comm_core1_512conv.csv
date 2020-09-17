@@ -1,0 +1,17 @@
+Task,InitTransferTime
+block1_conv1,2053
+block1_conv2,46918
+block2_conv1,65082
+block2_conv2,130274
+block3_conv1,225956
+block3_conv2,444304
+block3_conv3,451606
+block4_conv1,866708
+block4_conv2,1732180
+block4_conv3,1734272
+block5_conv1,1718758
+block5_conv2,1722092
+block5_conv3,1722788
+fc1,1649
+fc2,1744
+predictions,1350
