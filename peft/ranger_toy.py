@@ -409,10 +409,10 @@ def generate_argparser():
                         type=str, default="test/peftgraph_task_connectivity.csv")
     parser.add_argument("-c", "--communication_delay",
                         help="Value for communication latency",
-                        type=int, default="1")
+                        type=int, default="0")
     parser.add_argument("-s", "--streaming_overhead",
                         help="Value for streaming overhead added to processor exe time",
-                        type=int, default="3")
+                        type=int, default="0")
     parser.add_argument("-t", "--task_execution_file",
                         help="File containing execution times of each task on each particular PE. Uses a default 10x3 matrix from Arabnejad 2014 if none given.",
                         type=str, default="test/peftgraph_task_exe_time.csv")

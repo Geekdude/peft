@@ -412,7 +412,7 @@ def generate_argparser():
                         type=str, default="test/peftgraph_task_connectivity.csv")
     parser.add_argument("-p", "--pe_connectivity_file",
                         help="File containing connectivity/bandwidth information about PEs. Uses a default 3x3 matrix from Arabnejad 2014 if none given.",
-                        type=str, default="test/peftgraph_resource_BW.csv")
+                        type=str, default="")
     parser.add_argument("-t", "--task_execution_file",
                         help="File containing execution times of each task on each particular PE. Uses a default 10x3 matrix from Arabnejad 2014 if none given.",
                         type=str, default="test/peftgraph_task_exe_time.csv")
@@ -446,9 +446,15 @@ if __name__ == "__main__":
     consolehandler.setFormatter(logging.Formatter("%(levelname)8s : %(name)16s : %(message)s"))
     logger.addHandler(consolehandler)
 
-    communication_matrix = readCsvToNumpyMatrix(args.pe_connectivity_file)
     computation_matrix = readCsvToNumpyMatrix(args.task_execution_file)
     dag = readDagMatrix(args.dag_file, args.showDAG)
+    
+    # Create diagonal matrix if one is not provided.
+    if args.pe_connectivity_file == '':
+        communication_matrix = np.ones((computation_matrix.shape[1], computation_matrix.shape[1]), dtype=np.float64)
+        np.fill_diagonal(communication_matrix, 0)
+    else:
+        communication_matrix = readCsvToNumpyMatrix(args.pe_connectivity_file)
 
     tasks, accls, tasks_r, accls_r = getTaskAndAcclNames(args.task_execution_file)
     order = readManualOrder(args.manual, tasks_r, accls_r)

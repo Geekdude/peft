@@ -9,56 +9,133 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger",
-            "args": ["-d", "test/ranger_task_connectivity.csv", "-c", "0", "-s", "3", "-t", "test/peftgraph_task_exe_time.csv", "-l", "DEBUG"]
+            "args": [
+                "-d",
+                "test/ranger_task_connectivity.csv",
+                "-c",
+                "0",
+                "-s",
+                "3",
+                "-t",
+                "test/peftgraph_task_exe_time.csv",
+                "-l",
+                "DEBUG"
+            ]
         },
         {
             "name": "Python: RANGER Inception",
             "type": "python",
             "request": "launch",
             "module": "peft.ranger",
-            "args": ["-d", "model_dep_incv3_task_connectivity.csv", "-c", "0", "-s", "3", "-t", "test/reordered_stream.csv", "-l", "DEBUG"]
+            "args": [
+                "-d",
+                "model_dep_incv3_task_connectivity.csv",
+                "-c",
+                "0",
+                "-s",
+                "3",
+                "-t",
+                "test/reordered_stream.csv",
+                "-l",
+                "DEBUG"
+            ]
         },
         {
             "name": "Python: Reorder",
             "type": "python",
             "request": "launch",
             "module": "peft.reorder_exe_time",
-            "args": ["-d", "model_dep_incv3_task_connectivity.csv", "-t", "test/stream.csv"]
+            "args": [
+                "-d",
+                "model_dep_incv3_task_connectivity.csv",
+                "-t",
+                "test/stream.csv"
+            ]
         },
         {
             "name": "Python: dep",
             "type": "python",
             "request": "launch",
             "module": "peft.dep_convert",
-            "args": ["model_dep_incv3.dep"]
+            "args": [
+                "model_dep_incv3.dep"
+            ]
         },
         {
             "name": "Python: merge",
             "type": "python",
             "request": "launch",
             "module": "peft.init_time_merge",
-            "args": ["-t", "2020-09-14-perf-data/no_stream_comp_only_sorted.csv", "-i", "2020-09-14-perf-data/init_comm_core1_512conv_nostream.csv"]
+            "args": [
+                "-t",
+                "2020-09-14-perf-data/no_stream_comp_only_sorted.csv",
+                "-i",
+                "2020-09-14-perf-data/init_comm_core1_512conv_nostream.csv"
+            ]
         },
         {
             "name": "Python: incv3 stream",
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_toy",
-            "args": ["-d", "2020-09-14-small-proc/communication_core1_512conv.csv", "-t", "2020-09-14-small-proc/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task"]
+            "args": [
+                "-d",
+                "2020-09-14-small-proc/communication_core1_512conv.csv",
+                "-t",
+                "2020-09-14-small-proc/stream_taskwise_sorted.csv",
+                "-c",
+                "0",
+                "-s",
+                "0",
+                "-o",
+                "task"
+            ]
         },
         {
             "name": "Python: manual order",
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_toy",
-            "args": ["-d", "2020-09-15-single/communication_core1_512conv.csv", "-t", "2020-09-15-single/stream_taskwise_sorted.csv", "-c", "0", "-s", "0", "-o", "task", "-m", "2020-09-15-single/no_stream_order.csv", "-l", "DEBUG", "--idle"]
+            "args": [
+                "-d",
+                "2020-09-15-single/communication_core1_512conv.csv",
+                "-t",
+                "2020-09-15-single/stream_taskwise_sorted.csv",
+                "-c",
+                "0",
+                "-s",
+                "0",
+                "-o",
+                "task",
+                "-m",
+                "2020-09-15-single/no_stream_order.csv",
+                "-l",
+                "DEBUG",
+                "--idle"
+            ]
         },
         {
             "name": "Python: incv3 stream idle",
             "type": "python",
             "request": "launch",
             "module": "peft.peft",
-            "args": ["-d", "2020-09-15-single/communication_core1_512conv_nostream.csv", "-p", "2020-09-15-single/communication_core1_512conv_nostream_resource_BW.csv", "-t", "2020-09-15-single/no_stream_taskwise_sorted.csv", "-o", "task", "--idle"]
+            "args": [
+                "-d",
+                "2020-09-15-single/communication_core1_512conv_nostream.csv",
+                "-t",
+                "2020-09-15-single/no_stream_taskwise_sorted.csv",
+                "-o",
+                "task",
+                "--idle"
+            ]
+        },
+        {
+            "name": "Python: run_peft",
+            "type": "python",
+            "request": "launch",
+            "program": "2020-09-17-profiles/run_peft.py",
+            "console": "integratedTerminal",
+            "cwd": "2020-09-17-profiles"
         },
     ]
 }

@@ -90,9 +90,9 @@ def run_model(model, prefix, comm, no_stream_comp, stream_comp):
     run(f'PYTHONPATH={PEFT_DIR} python3 -m peft.ranger_toy -d {comm} -t {stream_comp} --showGantt -o task --idle > {model}/{prefix}stream_output.csv')
 
     # Run Streaming Same Order
-    create_order(file=f'{model}/{prefix}no_stream_output.csv', prefix=f'{model}/{prefix}')
+    create_order(file=f'{model}/{prefix}no_stream_output.csv', prefix=f'{model}/{prefix}no_stream_')
     print(f'{prefix} {model} Streaming Same Order')
-    run(f'PYTHONPATH={PEFT_DIR} python3 -m peft.ranger_toy -d {comm} -t {stream_comp} -m {model}/{prefix}order.csv --showGantt -o task --idle > {model}/{prefix}stream_same_order_output.csv')
+    run(f'PYTHONPATH={PEFT_DIR} python3 -m peft.ranger_toy -d {comm} -t {stream_comp} -m {model}/{prefix}no_stream_order.csv --showGantt -o task --idle > {model}/{prefix}stream_same_order_output.csv')
 
 def create_order(file, prefix):
     output = []
