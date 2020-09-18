@@ -3,6 +3,7 @@
 from collections import deque, namedtuple
 from math import inf
 from peft.gantt import showGanttChart
+from peft.gantt import saveGanttChart
 from types import SimpleNamespace
 
 import argparse
@@ -335,14 +336,14 @@ def getTaskAndAcclNames(csv_file):
     with open(csv_file) as fd:
         lines = fd.readlines()
 
-    accls = {-1: "idle"}
+    accls = {-1: "Idle"}
     line = lines.pop(0).split(',')
     for i, a in enumerate(line):
         if i == 0:
             continue
         accls[i-1] = a.strip()
 
-    tasks = {-1: "idle"}
+    tasks = {-1: "Idle"}
     for i, line in enumerate(lines):
         tasks[i] = line.split(',')[0].strip()
 
@@ -428,6 +429,9 @@ def generate_argparser():
     parser.add_argument("-o", "--output",
                         help="Output format to use for results",
                         choices=['default', 'task'], default='default')
+    parser.add_argument("--save",
+                        help="Save the Gantt chart picture.",
+                        type=str, default='')
     parser.add_argument("-m", "--manual", 
                         help="Specify a csv file containing a manual order to follow. File contains (task, device map).",
                         type=str, default="")
@@ -472,3 +476,7 @@ if __name__ == "__main__":
 
     if args.showGantt:
         showGanttChart(processor_schedules)
+
+    if args.save != '':
+        saveGanttChart(processor_schedules, args.save, accls)
+

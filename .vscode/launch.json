@@ -121,12 +121,14 @@
             "module": "peft.peft",
             "args": [
                 "-d",
-                "2020-09-15-single/communication_core1_512conv_nostream.csv",
+                "2020-09-15-fixed-data/communication_core1_512conv_nostream.csv",
                 "-t",
-                "2020-09-15-single/no_stream_taskwise_sorted.csv",
+                "2020-09-15-fixed-data/no_stream_taskwise_sorted.csv",
                 "-o",
                 "task",
-                "--idle"
+                "--idle",
+                "--save",
+                "test_fig"
             ]
         },
         {
@@ -135,7 +137,7 @@
             "request": "launch",
             "program": "run_peft.py",
             "console": "integratedTerminal",
-            "cwd": "2020-09-17-profiles"
+            "cwd": "2020-09-17-profiles",
         },
     ]
 }
