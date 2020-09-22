@@ -281,10 +281,10 @@ def main(argv):
 
     def plot_makespan(results):            
         model_rename = {
-            "incv3": "Invc3",
-            "vgg": "VGG",
-            "resnet": "ResNet",
-            "unet": "Unet",
+            "incv3": "Inception-v3",
+            "vgg": "VGG16",
+            "resnet": "Resnet-50",
+            "unet": "UNet",
         }
         case_rename = {
             "streaming": "Streaming",
