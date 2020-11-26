@@ -139,5 +139,67 @@
             "console": "integratedTerminal",
             "cwd": "2020-09-17-profiles",
         },
+        {  
+            "name": "Ranger V2: Ranger",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger_v2",
+            "env": {"DISPLAY": "localhost:11.0"},
+            "args": [
+                "-d",
+                "test/ranger_task_connectivity.csv",
+                "-t",
+                "test/peftgraph_task_exe_time.csv",
+                "--showDAG",
+                "--showGantt",
+                "-o",
+                "task",
+                "--idle",
+                "--transfer=1",
+                "--spm=3"
+            ]
+        },
+        {  
+            "name": "Ranger V2: Streaming Flat",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger_v2",
+            "env": {"DISPLAY": "localhost:11.0"},
+            "args": [
+                "-d",
+                "test/ranger_task_connectivity.csv",
+                "-t",
+                "test/peftgraph_task_exe_time.csv",
+                "--showDAG",
+                "--showGantt",
+                "-o",
+                "task",
+                "--idle",
+                "--transfer=1",
+                "--spm=3",
+                "--model=streaming_flat"
+            ]
+        },
+        {  
+            "name": "Ranger V2: Vanilla",
+            "type": "python",
+            "request": "launch",
+            "module": "peft.ranger_v2",
+            "env": {"DISPLAY": "localhost:11.0"},
+            "args": [
+                "-d",
+                "test/ranger_task_connectivity.csv",
+                "-t",
+                "test/peftgraph_task_exe_time.csv",
+                "--showDAG",
+                "--showGantt",
+                "-o",
+                "task",
+                "--idle",
+                "--transfer=1",
+                "--spm=3",
+                "--model=vanilla"
+            ]
+        }
     ]
 }
