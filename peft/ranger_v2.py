@@ -106,6 +106,7 @@ def schedule_dag(dag,
     for i in range(_self.number_of_processors):
         if i not in _self.proc_schedules:
             _self.proc_schedules[i] = []
+    _self.proc_schedules[-1] = []
 
     # Reapply existing schedules
     for proc in proc_schedules:
@@ -130,11 +131,15 @@ def schedule_dag(dag,
                 continue
             minTaskSchedule = ScheduleEvent(node, inf, inf, -1)
             minOptimisticCost = inf
-            for proc in range(_self.number_of_processors):
-                taskschedule = _compute_eft(_self, dag, node, proc)
-                if (taskschedule.end + _self.optimistic_cost_table[node][proc] < minTaskSchedule.end + minOptimisticCost):
-                    minTaskSchedule = taskschedule
-                    minOptimisticCost = _self.optimistic_cost_table[node][proc]
+            if 'T_s' in node or 'T_e' in node:
+                minOptimisticCost = 0
+                minTaskSchedule = _compute_eft(_self, dag, node, -1, 0)
+            else:
+                for proc in range(_self.number_of_processors):
+                    taskschedule = _compute_eft(_self, dag, node, proc)
+                    if (taskschedule.end + _self.optimistic_cost_table[node][proc] < minTaskSchedule.end + minOptimisticCost):
+                        minTaskSchedule = taskschedule
+                        minOptimisticCost = _self.optimistic_cost_table[node][proc]
             _self.task_schedules[node] = minTaskSchedule
             _self.proc_schedules[minTaskSchedule.proc].append(minTaskSchedule)
             _self.proc_schedules[minTaskSchedule.proc] = sorted(_self.proc_schedules[minTaskSchedule.proc], key=lambda schedule_event: schedule_event.end)
@@ -144,7 +149,7 @@ def schedule_dag(dag,
                     logger.debug(f"Processor {proc} has the following jobs:")
                     logger.debug(f"\t{jobs}")
                 logger.debug('\n')
-            for proc in range(len(_self.proc_schedules)):
+            for proc in range(_self.number_of_processors):
                 for job in range(len(_self.proc_schedules[proc])-1):
                     first_job = _self.proc_schedules[proc][job]
                     second_job = _self.proc_schedules[proc][job+1]
@@ -168,7 +173,7 @@ def schedule_dag(dag,
                     logger.debug(f"Processor {proc} has the following jobs:")
                     logger.debug(f"\t{jobs}")
                 logger.debug('\n')
-            for proc in range(len(_self.proc_schedules)):
+            for proc in range(_self.number_of_processors):
                 for job in range(len(_self.proc_schedules[proc])-1):
                     first_job = _self.proc_schedules[proc][job]
                     second_job = _self.proc_schedules[proc][job+1]
@@ -177,7 +182,6 @@ def schedule_dag(dag,
 
     # Add the idle time
     if include_idle:
-        _self.proc_schedules[-1] = []
         sorted_events = []
         for task in _self.task_schedules.values():
             sorted_events.append((task.start, "start"))
@@ -187,6 +191,7 @@ def schedule_dag(dag,
 
         start = 0
         count = 0
+        idle_count = 0
         for t, s in sorted_events:
             if s == "end":
                 count -= 1
@@ -197,8 +202,10 @@ def schedule_dag(dag,
                     delta = end - start
 
                     if delta > np.float(0): 
-                        event = ScheduleEvent(-1, start, end, -1)
-                        _self.task_schedules[_self.end_node] = event
+                        idle_task_name = f'idle_{idle_count}'
+                        idle_count += 1
+                        event = ScheduleEvent(idle_task_name, start, end, -1)
+                        _self.task_schedules[idle_task_name] = event
                         _self.proc_schedules[-1].append(event)
                         _self.proc_schedules[-1] = sorted(_self.proc_schedules[-1], key=lambda schedule_event: schedule_event.end)
                 count += 1
@@ -361,7 +368,7 @@ def _compute_optimistic_cost_table(_self, dag):
 
     return optimistic_cost_table
 
-def _compute_eft(_self, dag, node, proc):
+def _compute_eft(_self, dag, node, proc, exe_time_override=None):
     """
     Computes the EFT of a particular node if it were scheduled on a particular processor
     It does this by first looking at all predecessor tasks of a particular node and determining the earliest time a task would be ready for execution (ready_time)
@@ -389,8 +396,11 @@ def _compute_eft(_self, dag, node, proc):
 	# If not ranger then discard ranger overhead
     if _self.model != 'ranger':
         ranger_communication_overhead = 0
-
-    computation_time = dag.nodes[node]['exe_time'][proc]
+    
+    if exe_time_override is not None:
+        computation_time = exe_time_override
+    else:   
+        computation_time = dag.nodes[node]['exe_time'][proc]
     job_list = _self.proc_schedules[proc]
     for idx in range(len(job_list)):
         prev_job = job_list[idx]
