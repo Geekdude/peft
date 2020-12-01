@@ -236,8 +236,8 @@ def _update_dag(_self, dag):
             dag.edges[edge]['weight'] = 0
         for n in dag.nodes():
             for p in range(_self.computation_matrix.shape[1]):
-                if _self.computation_matrix[n][p] != 0: # Do not add to empty start/stop nodes.
-                    _self.computation_matrix[n][p] += (_self.spm / _self.transfer) * 2
+                if _self.computation_matrix[dag.nodes[n]['index']][p] != 0: # Do not add to empty start/stop nodes.
+                    _self.computation_matrix[dag.nodes[n]['index']][p] += (_self.spm / _self.transfer) * 2
             dag.nodes[n]['exe_time'] = _self.computation_matrix[dag.nodes[n]['index']]
 
     # Streaming Flat
@@ -536,7 +536,7 @@ def generate_argparser():
                         dest="showGantt", action="store_true")
     parser.add_argument("-o", "--output",
                         help="Output format to use for results",
-                        choices=['default', 'task'], default='default')
+                        choices=['default', 'task', 'csv'], default='default')
     parser.add_argument("--save",
                         help="Save the Gantt chart picture.",
                         type=str, default='')
@@ -598,10 +598,16 @@ if __name__ == "__main__":
         for proc, jobs in processor_schedules.items():
             logger.info(f"Processor {proc} has the following jobs:")
             logger.info(f"\t{jobs}")
-    else: # task
+    elif args.output == 'task':
         print(f"taskname,start,end,duration,acclname")
         for i, task in task_schedules.items():
             print(f"{task.task},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
+    else: # CSV
+        with open('output.csv', 'w') as fd:
+            fd.write(f"taskname,start,end,duration,acclname\n")
+            for i, task in task_schedules.items():
+                fd.write(f"{task.task},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}\n")
+
 
     if args.showGantt:
         showGanttChart(processor_schedules)
