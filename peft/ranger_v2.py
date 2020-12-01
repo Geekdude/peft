@@ -11,6 +11,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
+import math
 
 logger = logging.getLogger('peft')
 
@@ -50,12 +51,13 @@ def schedule_dag(dag,
     communication_matrix=C0,
     proc_schedules=None,
     time_offset=0,
-    relabel_nodes=True,
+    relabel_nodes=False,
     manual_order=[],
     include_idle=False,
     model='ranger',
     transfer=0,
     spm=0,
+    showDAG=False,
 ):
     """
     Given an application DAG and a set of matrices specifying PE bandwidth and (task, pe) execution times, computes the HEFT schedule
@@ -77,8 +79,17 @@ def schedule_dag(dag,
         'model': model,
         'transfer': transfer,
         'spm': spm,
+        'showDAG': showDAG,
     }
     _self = SimpleNamespace(**_self)
+    
+    _update_root_node(_self, dag)
+    _update_end_node(_self, dag)
+
+    logger.debug(""); logger.debug("====================== Updating DAG for Model ======================\n"); logger.debug("")
+    dag = _update_dag(_self, dag)
+    _self.number_of_tasks = dag.number_of_nodes()
+    _self.number_of_processors = _self.computation_matrix.shape[1]
 
     for proc in proc_schedules:
         _self.numExistingJobs = _self.numExistingJobs + len(proc_schedules[proc])
@@ -90,26 +101,17 @@ def schedule_dag(dag,
         _self.numExistingJobs = 0
 
     # Setup arrays to hold the task and proc schedules.
-    for i in range(_self.numExistingJobs + len(_self.computation_matrix)):
+    for i in dag.nodes():
         _self.task_schedules[i] = None
-    for i in range(len(_self.communication_matrix)):
+    for i in range(_self.number_of_processors):
         if i not in _self.proc_schedules:
             _self.proc_schedules[i] = []
 
     # Reapply existing schedules
     for proc in proc_schedules:
         for schedule_event in proc_schedules[proc]:
+            raise(NotImplemented("Existing schedules is broken."))
             _self.task_schedules[schedule_event.task] = schedule_event
-
-    # Nodes with no successors cause the any expression to be empty
-    root_node = [node for node in dag.nodes() if not any(True for _ in dag.predecessors(node))]
-    assert len(root_node) == 1, f"Expected a single root node, found {len(root_node)}"
-    root_node = root_node[0]
-    _self.root_node = root_node
-
-    logger.debug(""); logger.debug("====================== Updating DAG for Model ======================\n"); logger.debug("")
-    _update_dag(_self, dag)
-
 
     logger.debug(""); logger.debug("====================== Performing Optimistic Cost Table Computation ======================\n"); logger.debug("")
     _self.optimistic_cost_table = _compute_optimistic_cost_table(_self, dag)
@@ -118,9 +120,9 @@ def schedule_dag(dag,
     if len(_self.manual_order) == 0: 
         logger.debug(""); logger.debug("====================== Computing EFT for each (task, processor) pair and scheduling in order of decreasing Rank-U ======================"); logger.debug("")
         sorted_nodes = sorted(dag.nodes(), key=lambda node: dag.nodes()[node]['rank'], reverse=True)
-        if sorted_nodes[0] != root_node:
+        if sorted_nodes[0] != _self.root_node:
             logger.debug("Root node was not the first node in the sorted list. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
-            idx = sorted_nodes.index(root_node)
+            idx = sorted_nodes.index(_self.root_node)
             sorted_nodes[idx], sorted_nodes[0] = sorted_nodes[0], sorted_nodes[idx]
         logger.debug(f"Scheduling tasks in this order: {sorted_nodes}")
         for node in sorted_nodes:
@@ -128,7 +130,7 @@ def schedule_dag(dag,
                 continue
             minTaskSchedule = ScheduleEvent(node, inf, inf, -1)
             minOptimisticCost = inf
-            for proc in range(len(communication_matrix)):
+            for proc in range(_self.number_of_processors):
                 taskschedule = _compute_eft(_self, dag, node, proc)
                 if (taskschedule.end + _self.optimistic_cost_table[node][proc] < minTaskSchedule.end + minOptimisticCost):
                     minTaskSchedule = taskschedule
@@ -152,7 +154,7 @@ def schedule_dag(dag,
     # Use the manual schedule
     else:
         logger.debug(""); logger.debug("====================== Using the manual schedule ======================"); logger.debug("")
-        if _self.manual_order[0][0] != root_node:
+        if _self.manual_order[0][0] != _self.root_node:
             logger.error("Root node was not the first node in the manual order. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
         logger.debug(f"Scheduling tasks in this order: {[x[0] for x in _self.manual_order]}")
         for node, proc in _self.manual_order:
@@ -196,7 +198,7 @@ def schedule_dag(dag,
 
                     if delta > np.float(0): 
                         event = ScheduleEvent(-1, start, end, -1)
-                        _self.task_schedules[len(_self.task_schedules)] = event
+                        _self.task_schedules[_self.end_node] = event
                         _self.proc_schedules[-1].append(event)
                         _self.proc_schedules[-1] = sorted(_self.proc_schedules[-1], key=lambda schedule_event: schedule_event.end)
                 count += 1
@@ -211,6 +213,21 @@ def schedule_dag(dag,
 
     return _self.proc_schedules, _self.task_schedules, dict_output
 
+def _update_root_node(_self, dag):
+    # Nodes with no successors cause the any expression to be empty
+    root_node = [node for node in dag.nodes() if not any(True for _ in dag.predecessors(node))]
+    assert len(root_node) == 1, f"Expected a single root node, found {len(root_node)}"
+    root_node = root_node[0]
+    _self.root_node = root_node
+
+def _update_end_node(_self, dag):
+    # Nodes with no successors cause the any expression to be empty
+    end_node = [node for node in dag.nodes() if not any(True for _ in dag.successors(node))]
+    assert len(end_node) == 1, f"Expected a single end node, found {len(end_node)}"
+    end_node = end_node[0]
+    _self.end_node = end_node
+
+
 def _update_dag(_self, dag):
     """Update the DAG for the different models."""
     # Ranger
@@ -219,21 +236,65 @@ def _update_dag(_self, dag):
             dag.edges[edge]['weight'] = 0
         for n in dag.nodes():
             for p in range(_self.computation_matrix.shape[1]):
-                _self.computation_matrix[n][p] += (_self.spm / _self.transfer) * 2
+                if _self.computation_matrix[n][p] != 0: # Do not add to empty start/stop nodes.
+                    _self.computation_matrix[n][p] += (_self.spm / _self.transfer) * 2
+            dag.nodes[n]['exe_time'] = _self.computation_matrix[dag.nodes[n]['index']]
 
     # Streaming Flat
     if _self.model == 'streaming_flat':
-        raise(NotImplementedError("Streaming Flat Not implemented yet."))
-        # Expand each node
-        for n in nx.bfs_tree(dag, 0):
-            pass
-            # number_of_sub_tasks = 
+        ndag = nx.DiGraph()
 
+        # Expand each node
+        for c, n in enumerate(nx.bfs_tree(dag, _self.root_node)):
+            end_point = dag.out_degree(n) == 0 
+
+            edge_data = [0] + [dag.edges[i]['data'] for i in dag.in_edges(n)] 
+            incoming_data = max(edge_data)
+
+            if end_point: # Do not split the endpoint
+                n_tasks = 1
+            else:
+                n_tasks = max(math.ceil(incoming_data/_self.spm), 1)
+
+            assert(c != 0 or n_tasks == 1)
+
+            # Generate Sub Tasks
+            # For each node
+            for i in range(n_tasks): 
+                current = f'{n}.{i}'
+                ndag.add_node(current, **{
+                    'original_node': n,
+                    'index': dag.nodes[n]['index'],
+                    'id': f'{n}.{i}',
+                    'exe_time': _self.computation_matrix[dag.nodes[n]['index']] / n_tasks
+                })
+
+                # For each edge
+                for edge in dag.in_edges(n):
+                    for nn in ndag.nodes:
+                        if edge[0] == ndag.nodes[nn]['original_node']:
+                            ndag.add_edge(nn, current, **{
+                                'weight' : _self.spm / _self.transfer,
+                                'data': dag.edges[edge]['data'],
+                            })
+                
+        # Create new computation matrix
+        dag = ndag
+        _update_root_node(_self, dag)
+        _update_end_node(_self, dag)
 
     # Vanilla
     if _self.model == 'vanilla':
         for edge in dag.edges():
             dag.edges[edge]['weight'] = dag.edges[edge]['data'] / _self.transfer
+        for n in dag.nodes():
+            dag.nodes[n]['exe_time'] = _self.computation_matrix[dag.nodes[n]['index']]
+
+    if _self.showDAG:
+        nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
+        plt.show()
+
+    return dag
 
 
 def _compute_optimistic_cost_table(_self, dag):
@@ -247,7 +308,7 @@ def _compute_optimistic_cost_table(_self, dag):
     assert len(terminal_node) == 1, f"Expected a single terminal node, found {len(terminal_node)}"
     terminal_node = terminal_node[0]
 
-    optimistic_cost_table[terminal_node] = _self.computation_matrix.shape[1] * [0]
+    optimistic_cost_table[terminal_node] = _self.number_of_processors * [0]
     dag.nodes[terminal_node]['rank'] = 0
     visit_queue = deque(dag.predecessors(terminal_node))
 
@@ -263,22 +324,22 @@ def _compute_optimistic_cost_table(_self, dag):
             visit_queue.appendleft(node)
             node = node2
 
-        optimistic_cost_table[node] = _self.computation_matrix.shape[1] * [0]
+        optimistic_cost_table[node] = _self.number_of_processors * [0]
 
         logger.debug(f"Computing optimistic cost table entries for node: {node}")
 
         # Perform OCT kernel
         # Need to build the OCT entries for every task on each processor
-        for curr_proc in range(_self.computation_matrix.shape[1]):
+        for curr_proc in range(_self.number_of_processors):
             # Need to maximize over all the successor nodes
             max_successor_oct = -inf
             for succnode in dag.successors(node):
                 logger.debug(f"\tLooking at successor node: {succnode}")
                 # Need to minimize over the costs across each processor
                 min_proc_oct = inf
-                for succ_proc in range(_self.computation_matrix.shape[1]):
+                for succ_proc in range(_self.number_of_processors):
                     successor_oct = optimistic_cost_table[succnode][succ_proc]
-                    successor_comp_cost = _self.computation_matrix[succnode][succ_proc]
+                    successor_comp_cost = dag.nodes[succnode]['exe_time'][succ_proc]
 
                     # In RANGER there is comm cost for the same proc.
                     if _self.model != 'ranger':
@@ -317,7 +378,7 @@ def _compute_eft(_self, dag, node, proc):
             ready_time_t = predjob.end
             ranger_communication_overhead_t = 0
         else:
-            ready_time_t = predjob.end + dag[predjob.task][node]['weight'] / _self.communication_matrix[predjob.proc, proc]
+            ready_time_t = predjob.end + dag[predjob.task][node]['weight']
             ranger_communication_overhead_t = dag[predjob.task][node]['weight']
         logger.debug(f"\tNode {prednode} can have its data routed to processor {proc} by time {ready_time_t}")
         if ready_time_t > ready_time:
@@ -329,7 +390,7 @@ def _compute_eft(_self, dag, node, proc):
     if _self.model != 'ranger':
         ranger_communication_overhead = 0
 
-    computation_time = _self.computation_matrix[node-_self.numExistingJobs, proc]
+    computation_time = dag.nodes[node]['exe_time'][proc]
     job_list = _self.proc_schedules[proc]
     for idx in range(len(job_list)):
         prev_job = job_list[idx]
@@ -420,7 +481,7 @@ def readCsvToDict(csv_file):
             outputDict[row_num] = row
         return outputDict
 
-def readDagMatrix(dag_file, show_dag=False):
+def readDagMatrix(dag_file):
     """
     Given an input file consisting of a connectivity matrix, reads and parses it into a networkx Directional Graph (DiGraph)
     """
@@ -435,10 +496,6 @@ def readDagMatrix(dag_file, show_dag=False):
     # Duplicate weight attribute to data size.
     for edge in dag.edges():
         dag.edges[edge]['data'] = dag.edges[edge]['weight']
-
-    if show_dag:
-        nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
-        plt.show()
 
     return dag
 
@@ -515,10 +572,15 @@ if __name__ == "__main__":
     if args.model != 'ranger':
         np.fill_diagonal(communication_matrix, 0)
 
-    dag = readDagMatrix(args.dag_file, args.showDAG)
+    dag = readDagMatrix(args.dag_file)
 
     tasks, accls, tasks_r, accls_r = getTaskAndAcclNames(args.task_execution_file)
     order = readManualOrder(args.manual, tasks_r, accls_r)
+
+    # Relabel nodes
+    for i in dag.nodes:
+        dag.nodes[i]['index'] = i
+    dag = nx.relabel_nodes(dag, tasks)
 
     processor_schedules, task_schedules, dict_output = schedule_dag(
         dag, 
@@ -529,6 +591,7 @@ if __name__ == "__main__":
         model=args.model,
         transfer=args.transfer,
         spm = args.spm,
+        showDAG=args.showDAG,
     )
 
     if args.output == 'default':
@@ -538,7 +601,7 @@ if __name__ == "__main__":
     else: # task
         print(f"taskname,start,end,duration,acclname")
         for i, task in task_schedules.items():
-            print(f"{tasks[task.task]},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
+            print(f"{task.task},{task.start},{task.end},{task.end-task.start},{accls[task.proc]}")
 
     if args.showGantt:
         showGanttChart(processor_schedules)

@@ -137,26 +137,26 @@
             "request": "launch",
             "program": "run_peft.py",
             "console": "integratedTerminal",
-            "cwd": "2020-09-17-profiles",
+            "cwd": "2020-09-17-profiles"
         },
         {  
             "name": "Ranger V2: Ranger",
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:11.0"},
+            "env": {"DISPLAY": "localhost:10.0"},
             "args": [
                 "-d",
-                "test/ranger_task_connectivity.csv",
+                "test_v2/ranger_task_connectivity.csv",
                 "-t",
-                "test/peftgraph_task_exe_time.csv",
+                "test_v2/peftgraph_task_exe_time.csv",
                 "--showDAG",
                 "--showGantt",
                 "-o",
                 "task",
                 "--idle",
                 "--transfer=1",
-                "--spm=3"
+                "--spm=1"
             ]
         },
         {  
@@ -164,19 +164,19 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:11.0"},
+            "env": {"DISPLAY": "localhost:10.0"},
             "args": [
                 "-d",
-                "test/ranger_task_connectivity.csv",
+                "test_v2/ranger_task_connectivity.csv",
                 "-t",
-                "test/peftgraph_task_exe_time.csv",
+                "test_v2/peftgraph_task_exe_time.csv",
                 "--showDAG",
                 "--showGantt",
                 "-o",
                 "task",
                 "--idle",
                 "--transfer=1",
-                "--spm=3",
+                "--spm=1",
                 "--model=streaming_flat"
             ]
         },
@@ -185,19 +185,19 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:11.0"},
+            "env": {"DISPLAY": "localhost:10.0"},
             "args": [
                 "-d",
-                "test/ranger_task_connectivity.csv",
+                "test_v2/ranger_task_connectivity.csv",
                 "-t",
-                "test/peftgraph_task_exe_time.csv",
+                "test_v2/peftgraph_task_exe_time.csv",
                 "--showDAG",
                 "--showGantt",
                 "-o",
                 "task",
                 "--idle",
                 "--transfer=1",
-                "--spm=3",
+                "--spm=1",
                 "--model=vanilla"
             ]
         }
