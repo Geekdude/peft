@@ -578,7 +578,7 @@ if __name__ == "__main__":
 
     computation_matrix = readCsvToNumpyMatrix(args.task_execution_file)
 
-    communication_matrix = np.ones((computation_matrix.shape[1], computation_matrix.shape[1]))
+    communication_matrix = np.ones((computation_matrix.shape[1]+1, computation_matrix.shape[1]+1)) # Add one for the idle processor.
     if args.model != 'ranger':
         np.fill_diagonal(communication_matrix, 0)
 
