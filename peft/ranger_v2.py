@@ -52,7 +52,6 @@ def schedule_dag(dag,
     relabel_nodes=False,
     manual_order=[],
     include_idle=False,
-    model='ranger',
 ):
     """
     Given an application DAG and a set of matrices specifying PE bandwidth and (task, pe) execution times, computes the HEFT schedule
@@ -68,7 +67,7 @@ def schedule_dag(dag,
         'root_node': None,
         'optimistic_cost_table': None,
         'manual_order': manual_order,
-        'model': model,
+        'ranger_overhead': False,
     }
     _self = SimpleNamespace(**_self)
     
@@ -331,8 +330,8 @@ def _compute_optimistic_cost_table(_self, dag):
                     successor_comp_cost = dag.nodes[succnode]['exe_time'][succ_proc]
 
                     # In RANGER there is comm cost for the same proc.
-                    if _self.model != 'ranger':
-                        successor_comm_cost = dag[node][succnode]['weight'] if curr_proc != succ_proc else 0 
+                    if _self.communication_matrix[curr_proc][succ_proc] == 0:
+                        successor_comm_cost = 0 
                     else:
                         successor_comm_cost = dag[node][succnode]['weight'] 
 
@@ -376,7 +375,7 @@ def _compute_eft(_self, dag, node, proc, exe_time_override=None):
     logger.debug(f"\tReady time determined to be {ready_time}")
 	
 	# If not ranger then discard ranger overhead
-    if _self.model != 'ranger':
+    if not _self.ranger_overhead:
         ranger_communication_overhead = 0
     
     if exe_time_override is not None:
@@ -588,7 +587,6 @@ if __name__ == "__main__":
         communication_matrix=communication_matrix, 
         manual_order=order, 
         include_idle=args.idle, 
-        model=args.model,
     )
 
     if args.output == 'default':
