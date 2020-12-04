@@ -47,38 +47,58 @@ C0 = np.array([
 ])
 
 def schedule_dag(dag,
-    communication_matrix,
+    computation_matrix=W0,
+    communication_matrix=C0,
+    proc_schedules=None,
     time_offset=0,
     relabel_nodes=False,
     manual_order=[],
     include_idle=False,
     model='ranger',
+    transfer=0,
+    spm=0,
+    showDAG=False,
 ):
     """
     Given an application DAG and a set of matrices specifying PE bandwidth and (task, pe) execution times, computes the HEFT schedule
     of that DAG onto that set of PEs
     """
-    proc_schedules = {}
+    if proc_schedules == None:
+        proc_schedules = {}
 
     _self = {
+        'computation_matrix': computation_matrix,
         'communication_matrix': communication_matrix,
         'task_schedules': {},
         'proc_schedules': proc_schedules,
+        'numExistingJobs': 0,
         'time_offset': time_offset,
         'root_node': None,
         'optimistic_cost_table': None,
         'manual_order': manual_order,
         'model': model,
+        'transfer': transfer,
+        'spm': spm,
+        'showDAG': showDAG,
     }
     _self = SimpleNamespace(**_self)
     
-    _self.root_node = _get_root_node(dag)
-    _self.end_node = _get_end_node(dag)
+    _update_root_node(_self, dag)
+    _update_end_node(_self, dag)
 
+    logger.debug(""); logger.debug("====================== Updating DAG for Model ======================\n"); logger.debug("")
+    dag = _update_dag(_self, dag)
     _self.number_of_tasks = dag.number_of_nodes()
-    _self.number_of_processors = dag.graph['number_of_processors']
+    _self.number_of_processors = _self.computation_matrix.shape[1]
 
-    _self.numExistingJobs = 0
+    for proc in proc_schedules:
+        _self.numExistingJobs = _self.numExistingJobs + len(proc_schedules[proc])
+
+    if relabel_nodes:
+        dag = nx.relabel_nodes(dag, dict(map(lambda node: (node, node+_self.numExistingJobs), list(dag.nodes()))))
+    else:
+        #Negates any offsets that would have been needed had the jobs been relabeled
+        _self.numExistingJobs = 0
 
     # Setup arrays to hold the task and proc schedules.
     for i in dag.nodes():
@@ -200,41 +220,39 @@ def schedule_dag(dag,
 
     return _self.proc_schedules, _self.task_schedules, dict_output
 
-
-def _get_root_node(dag):
+def _update_root_node(_self, dag):
     # Nodes with no successors cause the any expression to be empty
     root_node = [node for node in dag.nodes() if not any(True for _ in dag.predecessors(node))]
     assert len(root_node) == 1, f"Expected a single root node, found {len(root_node)}"
     root_node = root_node[0]
-    return root_node
+    _self.root_node = root_node
 
-
-def _get_end_node(dag):
+def _update_end_node(_self, dag):
     # Nodes with no successors cause the any expression to be empty
     end_node = [node for node in dag.nodes() if not any(True for _ in dag.successors(node))]
     assert len(end_node) == 1, f"Expected a single end node, found {len(end_node)}"
     end_node = end_node[0]
-    return end_node
+    _self.end_node = end_node
 
 
-def _update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
+def _update_dag(_self, dag):
     """Update the DAG for the different models."""
     # Ranger
-    if model == 'ranger':
+    if _self.model == 'ranger':
         for edge in dag.edges():
             dag.edges[edge]['weight'] = 0
         for n in dag.nodes():
-            for p in range(computation_matrix.shape[1]):
-                if computation_matrix[dag.nodes[n]['index']][p] != 0: # Do not add to empty start/stop nodes.
-                    computation_matrix[dag.nodes[n]['index']][p] += (spm / transfer) * 2
-            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
+            for p in range(_self.computation_matrix.shape[1]):
+                if _self.computation_matrix[dag.nodes[n]['index']][p] != 0: # Do not add to empty start/stop nodes.
+                    _self.computation_matrix[dag.nodes[n]['index']][p] += (_self.spm / _self.transfer) * 2
+            dag.nodes[n]['exe_time'] = _self.computation_matrix[dag.nodes[n]['index']]
 
     # Streaming Flat
-    if model == 'streaming_flat':
+    if _self.model == 'streaming_flat':
         ndag = nx.DiGraph()
 
         # Expand each node
-        for c, n in enumerate(nx.bfs_tree(dag, _get_root_node(dag))):
+        for c, n in enumerate(nx.bfs_tree(dag, _self.root_node)):
             end_point = dag.out_degree(n) == 0 
 
             edge_data = [0] + [dag.edges[i]['data'] for i in dag.in_edges(n)] 
@@ -243,7 +261,7 @@ def _update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
             if end_point: # Do not split the endpoint
                 n_tasks = 1
             else:
-                n_tasks = max(math.ceil(incoming_data/spm), 1)
+                n_tasks = max(math.ceil(incoming_data/_self.spm), 1)
 
             assert(c != 0 or n_tasks == 1)
 
@@ -255,7 +273,7 @@ def _update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
                     'original_node': n,
                     'index': dag.nodes[n]['index'],
                     'id': f'{n}.{i}',
-                    'exe_time': computation_matrix[dag.nodes[n]['index']] / n_tasks
+                    'exe_time': _self.computation_matrix[dag.nodes[n]['index']] / n_tasks
                 })
 
                 # For each edge
@@ -263,23 +281,23 @@ def _update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
                     for nn in ndag.nodes:
                         if edge[0] == ndag.nodes[nn]['original_node']:
                             ndag.add_edge(nn, current, **{
-                                'weight' : spm / transfer,
+                                'weight' : _self.spm / _self.transfer,
                                 'data': dag.edges[edge]['data'],
                             })
                 
         # Create new computation matrix
         dag = ndag
+        _update_root_node(_self, dag)
+        _update_end_node(_self, dag)
 
     # Vanilla
-    if model == 'vanilla':
+    if _self.model == 'vanilla':
         for edge in dag.edges():
-            dag.edges[edge]['weight'] = dag.edges[edge]['data'] / transfer
+            dag.edges[edge]['weight'] = dag.edges[edge]['data'] / _self.transfer
         for n in dag.nodes():
-            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
-            
-    dag.graph['number_of_processors'] = computation_matrix.shape[1]
+            dag.nodes[n]['exe_time'] = _self.computation_matrix[dag.nodes[n]['index']]
 
-    if showDAG:
+    if _self.showDAG:
         nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
         plt.show()
 
@@ -574,21 +592,16 @@ if __name__ == "__main__":
         dag.nodes[i]['index'] = i
     dag = nx.relabel_nodes(dag, tasks)
 
-    dag = _update_dag(
-        dag=dag,
-        model=args.model,
-        computation_matrix=computation_matrix,
-        spm=args.spm,
-        transfer=args.transfer,
-        showDAG=args.showDAG,
-    )
-
     processor_schedules, task_schedules, dict_output = schedule_dag(
         dag, 
         communication_matrix=communication_matrix, 
+        computation_matrix=computation_matrix, 
         manual_order=order, 
         include_idle=args.idle, 
         model=args.model,
+        transfer=args.transfer,
+        spm = args.spm,
+        showDAG=args.showDAG,
     )
 
     if args.output == 'default':
