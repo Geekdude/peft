@@ -63,7 +63,7 @@ def saveGanttChart(proc_schedules, file, accl_map):
                 ax.barh((idx*0.5)+0.5, job.end - job.start, left=job.start, height=0.3, align='center', edgecolor='firebrick', color='firebrick', alpha=0.95)
             else:
                 ax.barh((idx*0.5)+0.5, job.end - job.start, left=job.start, height=0.3, align='center', edgecolor='black', color='white', alpha=0.95)
-            ax.text(0.5 * (job.start + job.end - len(str(job.task))-0.25), (idx*0.5)+0.5 - 0.03125, job.task+1, fontweight='bold', fontsize=8, alpha=0.75)
+            # ax.text(0.5 * (job.start + job.end - len(str(job.task))-0.25), (idx*0.5)+0.5 - 0.03125, job.task, fontweight='bold', fontsize=8, alpha=0.75)
     
     locsy, labelsy = plt.yticks(pos, proc_names)
     plt.ylabel('Processor', fontsize=10)

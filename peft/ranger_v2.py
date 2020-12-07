@@ -47,7 +47,7 @@ C0 = np.array([
 ])
 
 def schedule_dag(dag,
-    communication_matrix,
+    self_penalty,
     time_offset=0,
     relabel_nodes=False,
     manual_order=[],
@@ -60,7 +60,7 @@ def schedule_dag(dag,
     proc_schedules = {}
 
     _self = {
-        'communication_matrix': communication_matrix,
+        'self_penalty': self_penalty,
         'task_schedules': {},
         'proc_schedules': proc_schedules,
         'time_offset': time_offset,
@@ -216,75 +216,6 @@ def _get_end_node(dag):
     return end_node
 
 
-def _update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
-    """Update the DAG for the different models."""
-    # Ranger
-    if model == 'ranger':
-        for edge in dag.edges():
-            dag.edges[edge]['weight'] = 0
-        for n in dag.nodes():
-            for p in range(computation_matrix.shape[1]):
-                if computation_matrix[dag.nodes[n]['index']][p] != 0: # Do not add to empty start/stop nodes.
-                    computation_matrix[dag.nodes[n]['index']][p] += (spm / transfer) * 2
-            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
-
-    # Streaming Flat
-    if model == 'streaming_flat':
-        ndag = nx.DiGraph()
-
-        # Expand each node
-        for c, n in enumerate(nx.bfs_tree(dag, _get_root_node(dag))):
-            end_point = dag.out_degree(n) == 0 
-
-            edge_data = [0] + [dag.edges[i]['data'] for i in dag.in_edges(n)] 
-            incoming_data = max(edge_data)
-
-            if end_point: # Do not split the endpoint
-                n_tasks = 1
-            else:
-                n_tasks = max(math.ceil(incoming_data/spm), 1)
-
-            assert(c != 0 or n_tasks == 1)
-
-            # Generate Sub Tasks
-            # For each node
-            for i in range(n_tasks): 
-                current = f'{n}.{i}'
-                ndag.add_node(current, **{
-                    'original_node': n,
-                    'index': dag.nodes[n]['index'],
-                    'id': f'{n}.{i}',
-                    'exe_time': computation_matrix[dag.nodes[n]['index']] / n_tasks
-                })
-
-                # For each edge
-                for edge in dag.in_edges(n):
-                    for nn in ndag.nodes:
-                        if edge[0] == ndag.nodes[nn]['original_node']:
-                            ndag.add_edge(nn, current, **{
-                                'weight' : spm / transfer,
-                                'data': dag.edges[edge]['data'],
-                            })
-                
-        # Create new computation matrix
-        dag = ndag
-
-    # Vanilla
-    if model == 'vanilla':
-        for edge in dag.edges():
-            dag.edges[edge]['weight'] = dag.edges[edge]['data'] / transfer
-        for n in dag.nodes():
-            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
-            
-    dag.graph['number_of_processors'] = computation_matrix.shape[1]
-
-    if showDAG:
-        nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
-        plt.show()
-
-    return dag
-
-
 def _compute_optimistic_cost_table(_self, dag):
     """
     Uses a basic BFS approach to traverse upwards through the graph building the optimistic cost table along the way
@@ -330,7 +261,7 @@ def _compute_optimistic_cost_table(_self, dag):
                     successor_comp_cost = dag.nodes[succnode]['exe_time'][succ_proc]
 
                     # In RANGER there is comm cost for the same proc.
-                    if _self.communication_matrix[curr_proc][succ_proc] == 0:
+                    if _self.self_penalty == False and curr_proc == succ_proc:
                         successor_comm_cost = 0 
                     else:
                         successor_comm_cost = dag[node][succnode]['weight'] 
@@ -362,7 +293,7 @@ def _compute_eft(_self, dag, node, proc, exe_time_override=None):
         predjob = _self.task_schedules[prednode]
         assert predjob != None, f"Predecessor nodes must be scheduled before their children, but node {node} has an unscheduled predecessor of {prednode}"
         logger.debug(f"\tLooking at predecessor node {prednode} with job {predjob} to determine ready time")
-        if _self.communication_matrix[predjob.proc, proc] == 0:
+        if _self.self_penalty == False and predjob.proc == proc:
             ready_time_t = predjob.end
             ranger_communication_overhead_t = 0
         else:
@@ -508,6 +439,74 @@ def readManualOrder(order_csv, tasks_r, accls_r):
 
     return order
 
+def update_dag(dag, model, computation_matrix, spm, transfer, showDAG):
+    """Update the DAG for the different models."""
+    # Ranger
+    if model == 'ranger':
+        for edge in dag.edges():
+            dag.edges[edge]['weight'] = 0
+        for n in dag.nodes():
+            for p in range(computation_matrix.shape[1]):
+                if computation_matrix[dag.nodes[n]['index']][p] != 0: # Do not add to empty start/stop nodes.
+                    computation_matrix[dag.nodes[n]['index']][p] += (spm / transfer) * 2
+            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
+
+    # Streaming Flat
+    if model == 'streaming_flat':
+        ndag = nx.DiGraph()
+
+        # Expand each node
+        for c, n in enumerate(nx.bfs_tree(dag, _get_root_node(dag))):
+            end_point = dag.out_degree(n) == 0 
+
+            edge_data = [0] + [dag.edges[i]['data'] for i in dag.in_edges(n)] 
+            incoming_data = max(edge_data)
+
+            if end_point: # Do not split the endpoint
+                n_tasks = 1
+            else:
+                n_tasks = max(math.ceil(incoming_data/spm), 1)
+
+            assert(c != 0 or n_tasks == 1)
+
+            # Generate Sub Tasks
+            # For each node
+            for i in range(n_tasks): 
+                current = f'{n}.{i}'
+                ndag.add_node(current, **{
+                    'original_node': n,
+                    'index': dag.nodes[n]['index'],
+                    'id': f'{n}.{i}',
+                    'exe_time': computation_matrix[dag.nodes[n]['index']] / n_tasks
+                })
+
+                # For each edge
+                for edge in dag.in_edges(n):
+                    for nn in ndag.nodes:
+                        if edge[0] == ndag.nodes[nn]['original_node']:
+                            ndag.add_edge(nn, current, **{
+                                'weight' : spm / transfer,
+                                'data': dag.edges[edge]['data'],
+                            })
+                
+        # Create new computation matrix
+        dag = ndag
+
+    # Vanilla
+    if model == 'vanilla':
+        for edge in dag.edges():
+            dag.edges[edge]['weight'] = dag.edges[edge]['data'] / transfer
+        for n in dag.nodes():
+            dag.nodes[n]['exe_time'] = computation_matrix[dag.nodes[n]['index']]
+            
+    dag.graph['number_of_processors'] = computation_matrix.shape[1]
+
+    if showDAG:
+        nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
+        plt.show()
+
+    return dag
+
 def generate_argparser():
     parser = argparse.ArgumentParser(description="A tool for finding PEFT schedules for given DAG task graphs")
     parser.add_argument("-d", "--dag_file",
@@ -559,9 +558,10 @@ if __name__ == "__main__":
 
     computation_matrix = readCsvToNumpyMatrix(args.task_execution_file)
 
-    communication_matrix = np.ones((computation_matrix.shape[1]+1, computation_matrix.shape[1]+1)) # Add one for the idle processor.
-    if args.model != 'ranger':
-        np.fill_diagonal(communication_matrix, 0)
+    if args.model == 'ranger':
+        self_penalty = True
+    else:
+        self_penalty = False
 
     dag = readDagMatrix(args.dag_file)
 
@@ -573,7 +573,7 @@ if __name__ == "__main__":
         dag.nodes[i]['index'] = i
     dag = nx.relabel_nodes(dag, tasks)
 
-    dag = _update_dag(
+    dag = update_dag(
         dag=dag,
         model=args.model,
         computation_matrix=computation_matrix,
@@ -584,7 +584,7 @@ if __name__ == "__main__":
 
     processor_schedules, task_schedules, dict_output = schedule_dag(
         dag, 
-        communication_matrix=communication_matrix, 
+        self_penalty=self_penalty,
         manual_order=order, 
         include_idle=args.idle, 
     )

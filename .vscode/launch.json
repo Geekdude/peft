@@ -144,7 +144,7 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:10.0"},
+            "env": {"DISPLAY": "localhost:11.0"},
             "args": [
                 "-d",
                 "test_v2/ranger_task_connectivity.csv",
@@ -153,7 +153,7 @@
                 "--showDAG",
                 "--showGantt",
                 "-o",
-                "csv",
+                "task",
                 "--idle",
                 "--transfer=1",
                 "--spm=1"
@@ -164,7 +164,7 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:10.0"},
+            "env": {"DISPLAY": "localhost:11.0"},
             "args": [
                 "-d",
                 "test_v2/ranger_task_connectivity.csv",
@@ -173,7 +173,7 @@
                 "--showDAG",
                 "--showGantt",
                 "-o",
-                "csv",
+                "task",
                 "--idle",
                 "--transfer=1",
                 "--spm=1",
@@ -185,7 +185,7 @@
             "type": "python",
             "request": "launch",
             "module": "peft.ranger_v2",
-            "env": {"DISPLAY": "localhost:10.0"},
+            "env": {"DISPLAY": "localhost:11.0"},
             "args": [
                 "-d",
                 "test_v2/ranger_task_connectivity.csv",
@@ -194,12 +194,24 @@
                 "--showDAG",
                 "--showGantt",
                 "-o",
-                "csv",
+                "task",
                 "--idle",
                 "--transfer=1",
                 "--spm=1",
                 "--model=vanilla"
             ]
-        }
+        },
+        {
+            "name": "Python V2: run_peft",
+            "type": "python",
+            "request": "launch",
+            "program": "run_peft.py",
+            "cwd": "./2020-12-04-isc-paper",
+            "env": {"DISPLAY": "localhost:11.0"},
+            "args": [
+                // "--showDAG",
+                "--showGantt",
+            ]
+        },
     ]
 }
