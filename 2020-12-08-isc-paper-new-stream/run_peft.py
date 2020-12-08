@@ -91,14 +91,14 @@ SCRIPT_DIR = os.getcwd()
 
 MODELS = [
             'incv3',
-            'resnet',
-            'vgg',
-            'unet',
+            'resnet50',
+            'vgg16', # Note this model has no BN
+            'unet', # Note this model has no Dense
          ]
 
 ARCHS = [
             'ranger',
-            'streaming_flat',
+            # 'streaming_flat',
             'vanilla',
          ]
 
@@ -240,11 +240,17 @@ def read_dep_file(filename):
     return dag
 
 
-def expand_accelerators():
+def expand_accelerators(model):
     accels = {}
     accel_names = []
 
     for accel in ACCELS:
+        # Limit accel type for models without the accelerator.
+        if model == 'vgg16' and accel['type'] == 'bn':
+            continue
+        if model == 'unet' and accel['type'] == 'dense':
+            continue
+
         for i in range(accel['count']):
             name = f"{accel['name']}_{i}"
             accels[name] = {
@@ -263,7 +269,7 @@ def update_dag_ranger(dag, model):
         dag.edges[edge]['weight'] = 0
 
     # Computation Weights
-    accel_names, accel_details = expand_accelerators()
+    accel_names, accel_details = expand_accelerators(model)
     processor_num = len(accel_names)
 
     type_lookup = {'bn': "BatchNormalization", 'conv': 'Conv2D', 'dense': 'Dense'}
@@ -296,7 +302,7 @@ def update_dag_ranger(dag, model):
 def update_dag_streaming_flat(dag, model):
     ndag = nx.DiGraph()
 
-    accel_names, accel_details = expand_accelerators()
+    accel_names, accel_details = expand_accelerators(model)
     processor_num = len(accel_names)
     type_lookup = {'BatchNormalization': 'bn', 'Conv2D': 'conv', 'Dense': 'dense'}
 
@@ -371,8 +377,6 @@ def update_dag_streaming_flat(dag, model):
             for u in nnode_lookup[edge[0]]:
                 # For each new v
                 for v in nnode_lookup[edge[1]]:
-                    exec_time = ndag.nodes[u]['exe_time']
-                    exec_time2 = ndag.nodes[v]['exe_time']
                     dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
                     dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
                     weight = np.mean(dma_out) + np.mean(dma_in)
@@ -398,7 +402,7 @@ def update_dag_vanilla(dag, model):
                     dag[task][item]['weight'] = float(value)
 
     # Computation Weights
-    accel_names, accel_details = expand_accelerators()
+    accel_names, accel_details = expand_accelerators(model)
     processor_num = len(accel_names)
 
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
@@ -453,7 +457,7 @@ def verify_dag(dag):
 def process_model(args, model, arch):
     """ Process each model to run peft."""
 
-    print(f'Processing: {model} {arch}')
+    print(f'\n***Processing: {model} {arch}')
 
     # Read in the base dependencies
     dag = read_dep_file(f'model_dep_{model}.dep')
@@ -474,12 +478,15 @@ def process_model(args, model, arch):
 
     # Show the DAG
     if args.showDAG:
+        fig = plt.figure(figsize=figsize())
         nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
         plt.show()
 
     # Save the DAG
+    fig = plt.figure(figsize=figsize())
     nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
     plt.savefig(f'{args.output}/{model}_{arch}_dag.png')
+    plt.savefig(f'{args.output}/{model}_{arch}_dag.svg')
 
     # Run Peft
     processor_schedules, task_schedules, dict_output = peft.schedule_dag(
