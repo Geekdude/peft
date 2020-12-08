@@ -1,0 +1,17 @@
+conv2d_1, Conv2D, 2905, 6361, 3456
+batch_normalization_1, BatchNormalization, 10247487, 10247807, 320
+conv2d_2, Conv2D, 27173548, 27210412, 36864
+batch_normalization_2, BatchNormalization, 56722027, 56722347, 320
+conv2d_3, Conv2D, 65141885, 65160317, 18432
+batch_normalization_3, BatchNormalization, 94841605, 94841925, 320
+conv2d_4, Conv2D, 99042164, 99079028, 36864
+batch_normalization_4, BatchNormalization, 113857010, 113857170, 160
+conv2d_6, Conv2D, 114904670, 114927710, 23040
+batch_normalization_6, BatchNormalization, 122807930, 122808090, 160
+conv2d_7, Conv2D, 123339853, 123376717, 36864
+batch_normalization_7, BatchNormalization, 167695049, 167695209, 160
+conv2d_8, Conv2D, 168751477, 168788341, 36864
+batch_normalization_8, BatchNormalization, 213072964, 213073124, 160
+conv2d_9, Conv2D, 215289665, 215303489, 13824
+batch_normalization_9, BatchNormalization, 259620028, 259620188, 160
+conv2d_10, Conv2D, 263932445, 263946845, 14400
