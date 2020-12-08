@@ -4,6 +4,7 @@
 
 import argparse
 import sys
+import errno
 import os
 import datetime
 import subprocess
@@ -96,9 +97,9 @@ MODELS = [
          ]
 
 ARCHS = [
-            # 'ranger', 
+            'ranger', 
             'streaming_flat', 
-            # 'vanilla',
+            'vanilla',
          ]
 
 ACCELS = [
@@ -487,6 +488,8 @@ def verify_dag(dag):
     
 def process_model(args, model, arch):
     """ Process each model to run peft."""
+    
+    print(f'Processing: {model} {arch}')
 
     # Read in the base dependencies
     dag = read_dep_file(f'model_dep_{model}.dep')
@@ -510,6 +513,10 @@ def process_model(args, model, arch):
         nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
         plt.show()
     
+    # Save the DAG
+    nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
+    plt.savefig(f'{args.output}/{model}_{arch}_dag.png')
+    
     # Run Peft
     processor_schedules, task_schedules, dict_output = peft.schedule_dag(
         dag,
@@ -517,17 +524,26 @@ def process_model(args, model, arch):
         include_idle = True,
     )
 
-    print(f"taskname,start,end,duration,acclname")
-    proc_names = dag.graph['processor_names'] + ['Idle']
-    for i, task in task_schedules.items():
-        print(f"{task.task},{task.start},{task.end},{task.end-task.start},{proc_names[task.proc]}")
+    # # Output Result
+    # print(f"taskname,start,end,duration,acclname")
+    # proc_names = dag.graph['processor_names'] + ['Idle']
+    # for i, task in task_schedules.items():
+    #     print(f"{task.task},{task.start},{task.end},{task.end-task.start},{proc_names[task.proc]}")
 
+    # Save result to CSV
+    with open(f'{args.output}/{model}_{arch}_schedule.csv', 'w') as fd:
+        fd.write(f"taskname,start,end,duration,acclname\n")
+        for i, task in task_schedules.items():
+            fd.write(f"{task.task},{task.start},{task.end},{task.end-task.start},{proc_names[task.proc]}\n")
+
+    # Display Gantt
     if args.showGantt:
         peft.showGanttChart(processor_schedules)
 
+    # Save Gantt
     lookup = {-1: "Idle"}
     lookup.update({i:n for i, n in enumerate(dag.graph['processor_names'])})
-    peft.saveGanttChart(processor_schedules, 'test', lookup)
+    peft.saveGanttChart(processor_schedules, f'{args.output}/{model}_{arch}_gantt', lookup)
 
 
 def generate_argparser():
@@ -541,6 +557,9 @@ def generate_argparser():
     parser.add_argument("--showGantt",
                         help="Switch used to enable display of the final scheduled Gantt chart",
                         dest="showGantt", action="store_true")
+    parser.add_argument("--output",
+                        help="Folder to store output.",
+                        type=str, default='output')
     return parser
 
 
@@ -554,6 +573,13 @@ def main(argv):
     consolehandler.setLevel(logging.getLevelName(args.loglevel))
     consolehandler.setFormatter(logging.Formatter("%(levelname)8s : %(name)16s : %(message)s"))
     logger.addHandler(consolehandler)
+
+    # Make the output directory
+    try:
+        os.makedirs(args.output)
+    except FileExistsError as e:
+        if e.errno != errno.EEXIST:
+            raise
 
     # Process each model
     for model in MODELS:
