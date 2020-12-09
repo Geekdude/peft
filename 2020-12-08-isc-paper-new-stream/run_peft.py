@@ -308,6 +308,21 @@ def update_dag_ranger(args, dag, model):
 
 
 def update_dag_vanilla(args, dag, model):
+
+    accel_names, accel_details = expand_accelerators(model)
+    processor_num = len(accel_names)
+
+    # Get task -> type mapping
+    type_lookup = {'BatchNormalization': 'bn', 'Conv2D': 'conv', 'Dense': 'dense'}
+    filename = f"stream/{model}/{accel_details[accel_names[1]]['type']}/comp_only_core1_{accel_details[accel_names[1]]['size']}{accel_details[accel_names[1]]['type']}.csv"
+    header = ['task', 'type', 'start', 'stop', 'duration']
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile, fieldnames=header, skipinitialspace=True)
+        for row in reader:
+            if (row['task'] == 'Start' or row['task'] == 'End'):
+                continue
+            dag.nodes[row['task']]['type'] = type_lookup[row['type']]
+
     # Communication Weights
     with open(f'nostream/{model}/conv_nostream/communication_core1_1024conv_nostream.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -317,12 +332,9 @@ def update_dag_vanilla(args, dag, model):
                     task = row['Task']
                     dag[task][item]['weight'] = float(value) + args.l_overhead
 
-    # Computation Weights
-    accel_names, accel_details = expand_accelerators(model)
-    processor_num = len(accel_names)
-
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
 
+    # Computation Weights
     # Read computation times
     with open(f'nostream/{model}/no_stream_comp_only.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -335,6 +347,17 @@ def update_dag_vanilla(args, dag, model):
                 lookup_name = f"{type_lookup[accel_details[accel]['type']]}{accel_details[accel]['size']}"
                 exe_time = float(row[lookup_name])
                 dag.nodes[row['task']]['exe_time'][i] = exe_time if exe_time >= 0 else float('inf')
+
+    # Read init_comm_overhead
+    for i, accel in enumerate(accel_names):
+        filename = f"nostream/{model}/{accel_details[accel]['type']}_nostream/init_comm_core1_{accel_details[accel]['size']}{accel_details[accel]['type']}_nostream.csv"
+
+        with open(filename, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if dag.nodes[row['Task']]['type'] != accel_details[accel]['type']:
+                    continue
+                dag.nodes[row['Task']]['exe_time'][i] += float(row['InitTransferTime'])
 
     dag.graph['number_of_processors'] = processor_num
     dag.graph['processor_names'] = accel_names
@@ -489,6 +512,7 @@ def main(argv):
     for model in MODELS:
         for arch in ARCHS:
             runs.append((args, model, arch))
+            # process_model(args, model, arch)
 
     print(f'Launching with {len(runs)} tasks')
 
