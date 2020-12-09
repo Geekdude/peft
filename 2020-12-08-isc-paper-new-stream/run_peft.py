@@ -96,18 +96,18 @@ SCRIPT_DIR = os.getcwd()
 
 MODELS = [
             'incv3',
-            # 'resnet50',
-            # 'vgg16', # Note this model has no BN
-            # 'unet', # Note this model has no Dense
+            'resnet50',
+            'vgg16', # Note this model has no BN
+            'unet', # Note this model has no Dense
          ]
 
 ARCHS = [
-            # 'ranger',
+            'ranger',
             'streaming_flat_serial_edge',
             'streaming_flat_serial_node',
             'streaming_flat_parallel_edge',
             'streaming_flat_parallel_node',
-            # 'vanilla',
+            'vanilla',
          ]
 
 ACCELS = [
@@ -480,10 +480,17 @@ def main(argv):
         if e.errno != errno.EEXIST:
             raise
 
+    runs = []
+
     # Process each model
     for model in MODELS:
         for arch in ARCHS:
-            process_model(args, model, arch)
+            runs.append((args, model, arch))
+
+    print(f'Launching with {len(runs)} tasks')
+
+    with Pool(len(runs)) as p:
+        p.starmap(process_model, runs)
 
     return 0
 
