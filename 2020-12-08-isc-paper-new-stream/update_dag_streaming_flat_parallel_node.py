@@ -7,7 +7,7 @@ sys.path.insert(1, '..')
 import peft.ranger_v2 as peft
 
 
-def update_dag_streaming_flat_parallel_node(dag, model):
+def update_dag_streaming_flat_parallel_node(args, dag, model):
     ndag = nx.DiGraph()
 
     from run_peft import expand_accelerators
@@ -88,7 +88,7 @@ def update_dag_streaming_flat_parallel_node(dag, model):
                 # For each new v
                 for v in nnode_lookup[edge[1]]:
                     ndag.add_edge(u, v, **{
-                        'weight': 0,
+                        'weight': args.l_overhead,
                     })
 
     ndag.graph['number_of_processors'] = processor_num

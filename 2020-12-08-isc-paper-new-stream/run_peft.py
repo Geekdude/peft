@@ -271,10 +271,10 @@ def expand_accelerators(model):
     return accel_names, accels
 
 
-def update_dag_ranger(dag, model):
+def update_dag_ranger(args, dag, model):
     # Communication Weights
     for edge in dag.edges():
-        dag.edges[edge]['weight'] = 0
+        dag.edges[edge]['weight'] = args.l_overhead
 
     # Computation Weights
     accel_names, accel_details = expand_accelerators(model)
@@ -307,7 +307,7 @@ def update_dag_ranger(dag, model):
     return dag
 
 
-def update_dag_vanilla(dag, model):
+def update_dag_vanilla(args, dag, model):
     # Communication Weights
     with open(f'nostream/{model}/conv_nostream/communication_core1_1024conv_nostream.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -315,7 +315,7 @@ def update_dag_vanilla(dag, model):
             for item, value in row.items():
                 if item != 'Task' and value != '0':
                     task = row['Task']
-                    dag[task][item]['weight'] = float(value)
+                    dag[task][item]['weight'] = float(value) + args.l_overhead
 
     # Computation Weights
     accel_names, accel_details = expand_accelerators(model)
@@ -384,17 +384,17 @@ def process_model(args, model, arch):
 
     # Read in values for graph
     if arch == 'ranger':
-        dag = update_dag_ranger(dag, model)
+        dag = update_dag_ranger(args, dag, model)
     elif arch == 'streaming_flat_parallel_edge':
-        dag = update_dag_streaming_flat_parallel_edge(dag, model)
+        dag = update_dag_streaming_flat_parallel_edge(args, dag, model)
     elif arch == 'streaming_flat_parallel_node':
-        dag = update_dag_streaming_flat_parallel_node(dag, model)
+        dag = update_dag_streaming_flat_parallel_node(args, dag, model)
     elif arch == 'streaming_flat_serial_edge':
-        dag = update_dag_streaming_flat_serial_edge(dag, model)
+        dag = update_dag_streaming_flat_serial_edge(args, dag, model)
     elif arch == 'streaming_flat_serial_node':
-        dag = update_dag_streaming_flat_serial_node(dag, model)
+        dag = update_dag_streaming_flat_serial_node(args, dag, model)
     elif arch == 'vanilla':
-        dag = update_dag_vanilla(dag, model)
+        dag = update_dag_vanilla(args, dag, model)
 
     dag = verify_dag(dag)
 
@@ -459,6 +459,9 @@ def generate_argparser():
     parser.add_argument("--output",
                         help="Folder to store output.",
                         type=str, default='output')
+    parser.add_argument('--l_overhead',
+                        help='l overhead value.',
+                        default=150000, type=float)
     return parser
 
 

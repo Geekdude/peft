@@ -7,7 +7,7 @@ sys.path.insert(1, '..')
 import peft.ranger_v2 as peft
 
 
-def update_dag_streaming_flat_parallel_edge(dag, model):
+def update_dag_streaming_flat_parallel_edge(args, dag, model):
     ndag = nx.DiGraph()
 
     from run_peft import expand_accelerators
@@ -92,7 +92,7 @@ def update_dag_streaming_flat_parallel_edge(dag, model):
                     weight = np.mean(dma_out) + np.mean(dma_in)
                     # weight = np.mean(ndag.nodes[u]['dma_out_time']) + np.mean(ndag.nodes[v]['dma_in_time'])
                     ndag.add_edge(u, v, **{
-                        'weight': weight,
+                        'weight': weight + args.l_overhead,
                     })
 
     ndag.graph['number_of_processors'] = processor_num
