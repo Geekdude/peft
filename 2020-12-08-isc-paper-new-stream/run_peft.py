@@ -330,7 +330,7 @@ def update_dag_vanilla(args, dag, model):
             for item, value in row.items():
                 if item != 'Task' and value != '0':
                     task = row['Task']
-                    dag[task][item]['weight'] = float(value) + args.l_overhead
+                    dag[task][item]['weight'] = float(value)
 
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
 
@@ -346,7 +346,7 @@ def update_dag_vanilla(args, dag, model):
             for i, accel in enumerate(accel_names):
                 lookup_name = f"{type_lookup[accel_details[accel]['type']]}{accel_details[accel]['size']}"
                 exe_time = float(row[lookup_name])
-                dag.nodes[row['task']]['exe_time'][i] = exe_time if exe_time >= 0 else float('inf')
+                dag.nodes[row['task']]['exe_time'][i] = exe_time + args.l_overhead if exe_time >= 0 else float('inf')
 
     # Read init_comm_overhead
     for i, accel in enumerate(accel_names):
