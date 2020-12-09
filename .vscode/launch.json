@@ -206,11 +206,12 @@
             "type": "python",
             "request": "launch",
             "program": "run_peft.py",
-            "cwd": "./2020-12-04-isc-paper",
-            "env": {"DISPLAY": "localhost:11.0"},
+            "cwd": "/home/7ry/Data/Ranger/peft/2020-12-08-isc-paper-new-stream",
+            "env": {"DISPLAY": "localhost:10.0"},
             "args": [
                 // "--showDAG",
-                "--showGantt",
+                // "--showGantt",
+                "--output=vscode_out"
             ]
         },
     ]

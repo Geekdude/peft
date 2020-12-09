@@ -86,20 +86,28 @@ title_size = 16
 sys.path.insert(1, '..')
 import peft.ranger_v2 as peft
 
+from update_dag_steaming_flat_parallel_edge import update_dag_streaming_flat_parallel_edge
+from update_dag_steaming_flat_parallel_node import update_dag_streaming_flat_parallel_node
+from update_dag_steaming_flat_serial_edge import update_dag_streaming_flat_serial_edge
+from update_dag_steaming_flat_serial_node import update_dag_streaming_flat_serial_node
+
 PEFT_DIR = '..'
 SCRIPT_DIR = os.getcwd()
 
 MODELS = [
             'incv3',
-            'resnet50',
-            'vgg16', # Note this model has no BN
-            'unet', # Note this model has no Dense
+            # 'resnet50',
+            # 'vgg16', # Note this model has no BN
+            # 'unet', # Note this model has no Dense
          ]
 
 ARCHS = [
-            'ranger',
-            # 'streaming_flat',
-            'vanilla',
+            # 'ranger',
+            'streaming_flat_parallel_edge',
+            'streaming_flat_parallel_node',
+            'streaming_flat_serial_edge',
+            'streaming_flat_serial_node',
+            # 'vanilla',
          ]
 
 ACCELS = [
@@ -299,98 +307,6 @@ def update_dag_ranger(dag, model):
     return dag
 
 
-def update_dag_streaming_flat(dag, model):
-    ndag = nx.DiGraph()
-
-    accel_names, accel_details = expand_accelerators(model)
-    processor_num = len(accel_names)
-    type_lookup = {'BatchNormalization': 'bn', 'Conv2D': 'conv', 'Dense': 'dense'}
-
-    # Get task -> type mapping
-    filename = f"stream/{model}/{accel_details[accel_names[1]]['type']}/comp_only_core1_{accel_details[accel_names[1]]['size']}{accel_details[accel_names[1]]['type']}.csv"
-    header = ['task', 'type', 'start', 'stop', 'duration']
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile, fieldnames=header, skipinitialspace=True)
-        for row in reader:
-            if (row['task'] == 'Start' or row['task'] == 'End'):
-                continue
-            dag.nodes[row['task']]['type'] = type_lookup[row['type']]
-
-    nnode_lookup = {}
-
-    # For each accelerator build the nodes
-    for accel_idx, accel in enumerate(accel_names):
-        filename = f"stream/{model}/{accel_details[accel]['type']}/instance_core1_{accel_details[accel]['size']}{accel_details[accel]['type']}.csv"
-
-        with open(filename, newline='') as csvfile:
-            reader = csv.DictReader(csvfile, skipinitialspace=True)
-            for row in reader:
-                node_name = f"{row['task_name']}_{row['instance']}"
-                if dag.nodes[row['task_name']]['type'] != accel_details[accel]['type']:
-                    continue
-
-                # Add node if new
-                if node_name not in ndag.nodes():
-                    ndag.add_node(node_name, **{
-                        'original_node': row['task_name'],
-                        'index': row['instance'],
-                        'exe_time': [float('inf'),] * processor_num,
-                        'dma_in_time': ['inf',] * processor_num,
-                        'dma_out_time': ['inf',] * processor_num,
-                    })
-
-                    # Add task to reverse lookup.
-                    if row['task_name'] not in nnode_lookup:
-                        nnode_lookup[row['task_name']] = []
-                    if node_name not in nnode_lookup[row['task_name']]:
-                        nnode_lookup[row['task_name']].append(node_name)
-
-                # Update times
-                ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc'])
-                ndag.nodes[node_name]['dma_in_time'][accel_idx] = float(row['dma_in'])
-                ndag.nodes[node_name]['dma_out_time'][accel_idx] = float(row['dma_out'])
-
-    # Add start and end
-    ndag.add_node('T_s', **{
-        'original_node': 'T_s',
-        'index': 0,
-        'exe_time': [0,] * processor_num,
-        'dma_in_time': [0,] * processor_num,
-        'dma_out_time': [0,] * processor_num,
-    })
-    nnode_lookup['T_s'] = ['T_s']
-
-    ndag.add_node('T_e', **{
-        'original_node': 'T_e',
-        'index': 0,
-        'exe_time': [0,] * processor_num,
-        'dma_in_time': [0,] * processor_num,
-        'dma_out_time': [0,] * processor_num,
-    })
-    nnode_lookup['T_e'] = ['T_e']
-
-    # For each node
-    for c, n in enumerate(nx.bfs_tree(dag, peft._get_root_node(dag))):
-        # For each edge
-        for edge in dag.in_edges(n):
-            # For each new node u
-            for u in nnode_lookup[edge[0]]:
-                # For each new v
-                for v in nnode_lookup[edge[1]]:
-                    dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
-                    dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
-                    weight = np.mean(dma_out) + np.mean(dma_in)
-                    # weight = np.mean(ndag.nodes[u]['dma_out_time']) + np.mean(ndag.nodes[v]['dma_in_time'])
-                    ndag.add_edge(u, v, **{
-                        'weight': weight,
-                    })
-
-    ndag.graph['number_of_processors'] = processor_num
-    ndag.graph['processor_names'] = accel_names
-
-    return ndag
-
-
 def update_dag_vanilla(dag, model):
     # Communication Weights
     with open(f'nostream/{model}/conv_nostream/communication_core1_1024conv_nostream.csv', newline='') as csvfile:
@@ -407,6 +323,7 @@ def update_dag_vanilla(dag, model):
 
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
 
+    # Read computation times
     with open(f'nostream/{model}/no_stream_comp_only.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -423,6 +340,7 @@ def update_dag_vanilla(dag, model):
     dag.graph['processor_names'] = accel_names
 
     return dag
+
 
 def verify_dag(dag):
     # Check Start
@@ -467,8 +385,14 @@ def process_model(args, model, arch):
     # Read in values for graph
     if arch == 'ranger':
         dag = update_dag_ranger(dag, model)
-    elif arch == 'streaming_flat':
-        dag = update_dag_streaming_flat(dag, model)
+    elif arch == 'streaming_flat_parallel_edge':
+        dag = update_dag_streaming_flat_parallel_edge(dag, model)
+    elif arch == 'streaming_flat_parallel_node':
+        dag = update_dag_streaming_flat_parallel_node(dag, model)
+    elif arch == 'streaming_flat_serial_edge':
+        dag = update_dag_streaming_flat_serial_edge(dag, model)
+    elif arch == 'streaming_flat_serial_node':
+        dag = update_dag_streaming_flat_serial_node(dag, model)
     elif arch == 'vanilla':
         dag = update_dag_vanilla(dag, model)
 
@@ -482,16 +406,19 @@ def process_model(args, model, arch):
         nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
         plt.show()
 
-    # Save the DAG
-    fig = plt.figure(figsize=figsize())
-    nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
-    plt.savefig(f'{args.output}/{model}_{arch}_dag.png')
-    plt.savefig(f'{args.output}/{model}_{arch}_dag.svg')
+    # # Save the DAG
+    # fig = plt.figure(figsize=figsize())
+    # nx.draw(dag, pos=nx.nx_pydot.graphviz_layout(dag, prog='dot'), with_labels=True)
+    # plt.savefig(f'{args.output}/{model}_{arch}_dag.png')
+    # plt.savefig(f'{args.output}/{model}_{arch}_dag.svg')
+
+    # Save Dot file
+    nx.nx_agraph.write_dot(dag, f'{args.output}/{model}_{arch}_dag.dot')
 
     # Run Peft
     processor_schedules, task_schedules, dict_output = peft.schedule_dag(
         dag,
-        self_penalty = True if model == 'ranger' else False,
+        self_penalty = False if model == 'vanilla' else True,
         include_idle = True,
     )
 
@@ -512,10 +439,10 @@ def process_model(args, model, arch):
     if args.showGantt:
         peft.showGanttChart(processor_schedules)
 
-    # Save Gantt
-    lookup = {-1: "Idle"}
-    lookup.update({i:n for i, n in enumerate(dag.graph['processor_names'])})
-    peft.saveGanttChart(processor_schedules, f'{args.output}/{model}_{arch}_gantt', lookup)
+    # # Save Gantt
+    # lookup = {-1: "Idle"}
+    # lookup.update({i:n for i, n in enumerate(dag.graph['processor_names'])})
+    # peft.saveGanttChart(processor_schedules, f'{args.output}/{model}_{arch}_gantt', lookup)
 
 
 def generate_argparser():
