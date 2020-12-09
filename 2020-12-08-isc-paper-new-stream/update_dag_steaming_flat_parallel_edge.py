@@ -68,6 +68,7 @@ def update_dag_streaming_flat_parallel_edge(dag, model):
     })
     nnode_lookup['T_e'] = ['T_e']
 
+    # Add edges
     # For each node
     for c, n in enumerate(nx.bfs_tree(dag, peft._get_root_node(dag))):
         # For each edge

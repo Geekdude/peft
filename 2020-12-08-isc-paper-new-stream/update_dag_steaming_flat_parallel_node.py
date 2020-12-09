@@ -45,7 +45,7 @@ def update_dag_streaming_flat_parallel_node(dag, model):
                         nnode_lookup[row['task_name']].append(node_name)
 
                 # Update times
-                ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc'])
+                ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc']) + float(row['dma_in']) + float(row['dma_out'])
                 ndag.nodes[node_name]['dma_in_time'][accel_idx] = float(row['dma_in'])
                 ndag.nodes[node_name]['dma_out_time'][accel_idx] = float(row['dma_out'])
 
@@ -68,6 +68,7 @@ def update_dag_streaming_flat_parallel_node(dag, model):
     })
     nnode_lookup['T_e'] = ['T_e']
 
+    # Add edges
     # For each node
     for c, n in enumerate(nx.bfs_tree(dag, peft._get_root_node(dag))):
         # For each edge
@@ -76,12 +77,8 @@ def update_dag_streaming_flat_parallel_node(dag, model):
             for u in nnode_lookup[edge[0]]:
                 # For each new v
                 for v in nnode_lookup[edge[1]]:
-                    dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
-                    dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
-                    weight = np.mean(dma_out) + np.mean(dma_in)
-                    # weight = np.mean(ndag.nodes[u]['dma_out_time']) + np.mean(ndag.nodes[v]['dma_in_time'])
                     ndag.add_edge(u, v, **{
-                        'weight': weight,
+                        'weight': 0,
                     })
 
     ndag.graph['number_of_processors'] = processor_num

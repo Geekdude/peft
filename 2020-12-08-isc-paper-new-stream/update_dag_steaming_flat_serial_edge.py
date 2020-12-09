@@ -1,5 +1,4 @@
 def update_dag_streaming_flat_serial_edge(dag, model):
-    raise NotImplementedError('Function not implemented.')
     ndag = nx.DiGraph()
 
     accel_names, accel_details = expand_accelerators(model)
@@ -70,25 +69,30 @@ def update_dag_streaming_flat_serial_edge(dag, model):
     nnode_lookup['T_e'] = ['T_e']
 
     # Connect interier nodes
-    # TODO
+    for node, nnodes in nnode_lookup.items():
+        for idx in range(len(nnodes)-1):
+            u = nnodes[idx]
+            v = nnodes[idx+1]
+            dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
+            dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
+            weight = np.mean(dma_out) + np.mean(dma_in)
+            ndag.add_edge(u, v, **{
+                'weight': weight,
+            })
 
-    # Connect exterier nodes
-    # TODO
+    # Connect exterior nodes
     # For each node
     for c, n in enumerate(nx.bfs_tree(dag, peft._get_root_node(dag))):
         # For each edge
         for edge in dag.in_edges(n):
-            # For each new node u
-            for u in nnode_lookup[edge[0]]:
-                # For each new v
-                for v in nnode_lookup[edge[1]]:
-                    dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
-                    dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
-                    weight = np.mean(dma_out) + np.mean(dma_in)
-                    # weight = np.mean(ndag.nodes[u]['dma_out_time']) + np.mean(ndag.nodes[v]['dma_in_time'])
-                    ndag.add_edge(u, v, **{
-                        'weight': weight,
-                    })
+            u = nnode_lookup[edge[0]][-1]
+            v = nnode_lookup[edge[1]][0]
+            dma_out = [i for i in ndag.nodes[u]['dma_out_time'] if i != 'inf']
+            dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
+            weight = np.mean(dma_out) + np.mean(dma_in)
+            ndag.add_edge(u, v, **{
+                'weight': weight,
+            })
 
     ndag.graph['number_of_processors'] = processor_num
     ndag.graph['processor_names'] = accel_names
