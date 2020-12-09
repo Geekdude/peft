@@ -86,10 +86,10 @@ title_size = 16
 sys.path.insert(1, '..')
 import peft.ranger_v2 as peft
 
-from update_dag_steaming_flat_parallel_edge import update_dag_streaming_flat_parallel_edge
-from update_dag_steaming_flat_parallel_node import update_dag_streaming_flat_parallel_node
-from update_dag_steaming_flat_serial_edge import update_dag_streaming_flat_serial_edge
-from update_dag_steaming_flat_serial_node import update_dag_streaming_flat_serial_node
+from update_dag_streaming_flat_parallel_edge import update_dag_streaming_flat_parallel_edge
+from update_dag_streaming_flat_parallel_node import update_dag_streaming_flat_parallel_node
+from update_dag_streaming_flat_serial_edge import update_dag_streaming_flat_serial_edge
+from update_dag_streaming_flat_serial_node import update_dag_streaming_flat_serial_node
 
 PEFT_DIR = '..'
 SCRIPT_DIR = os.getcwd()
