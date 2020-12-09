@@ -1,6 +1,16 @@
+import sys
+import networkx as nx
+import csv
+import numpy as np
+
+sys.path.insert(1, '..')
+import peft.ranger_v2 as peft
+
+
 def update_dag_streaming_flat_serial_edge(dag, model):
     ndag = nx.DiGraph()
 
+    from run_peft import expand_accelerators
     accel_names, accel_details = expand_accelerators(model)
     processor_num = len(accel_names)
     type_lookup = {'BatchNormalization': 'bn', 'Conv2D': 'conv', 'Dense': 'dense'}
