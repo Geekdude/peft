@@ -87,7 +87,7 @@ def update_dag_streaming_flat_serial_edge(args, dag, model):
             dma_in = [i for i in ndag.nodes[v]['dma_in_time'] if i != 'inf']
             weight = np.mean(dma_out) + np.mean(dma_in)
             ndag.add_edge(u, v, **{
-                'weight': weight,
+                'weight': weight + args.l_overhead,
             })
 
     # Connect exterior nodes

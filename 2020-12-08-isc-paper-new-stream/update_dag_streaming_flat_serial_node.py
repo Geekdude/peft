@@ -84,7 +84,7 @@ def update_dag_streaming_flat_serial_node(args, dag, model):
             u = nnodes[idx]
             v = nnodes[idx+1]
             ndag.add_edge(u, v, **{
-                'weight': 0,
+                'weight': args.l_overhead,
             })
 
     # Connect exterior nodes
