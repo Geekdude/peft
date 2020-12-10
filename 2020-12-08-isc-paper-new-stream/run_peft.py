@@ -63,7 +63,7 @@ latex = {  # setup matplotlib to use latex for output
     # "ytick.labelsize": 8,
 }
 mpl.rcParams.update(latex)
-print(mpl.rcParams.find_all)
+# print(mpl.rcParams.find_all)
 import matplotlib.pyplot as plt
 import math
 import re
