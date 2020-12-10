@@ -214,5 +214,18 @@
                 "--output=vscode_out"
             ]
         },
+        {
+            "name": "Python V2: run_peft_reduced",
+            "type": "python",
+            "request": "launch",
+            "program": "run_peft_reduced.py",
+            "cwd": "/home/7ry/Data/Ranger/peft/2020-12-08-isc-paper-new-stream",
+            "env": {"DISPLAY": "localhost:10.0"},
+            "args": [
+                // "--showDAG",
+                // "--showGantt",
+                "--output=vscode_out"
+            ]
+        },
     ]
 }

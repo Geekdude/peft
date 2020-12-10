@@ -23,7 +23,10 @@ def update_dag_streaming_flat_serial_node(args, dag, model):
         for row in reader:
             if (row['task'] == 'Start' or row['task'] == 'End'):
                 continue
-            dag.nodes[row['task']]['type'] = type_lookup[row['type']]
+            try:
+                dag.nodes[row['task']]['type'] = type_lookup[row['type']]
+            except:
+                pass
 
     nnode_lookup = {}
 
@@ -34,30 +37,33 @@ def update_dag_streaming_flat_serial_node(args, dag, model):
         with open(filename, newline='') as csvfile:
             reader = csv.DictReader(csvfile, skipinitialspace=True)
             for row in reader:
-                node_name = f"{row['task_name']}_{row['instance']}"
-                if dag.nodes[row['task_name']]['type'] != accel_details[accel]['type']:
-                    continue
+                try:
+                    node_name = f"{row['task_name']}_{row['instance']}"
+                    if dag.nodes[row['task_name']]['type'] != accel_details[accel]['type']:
+                        continue
 
-                # Add node if new
-                if node_name not in ndag.nodes():
-                    ndag.add_node(node_name, **{
-                        'original_node': row['task_name'],
-                        'index': row['instance'],
-                        'exe_time': [float('inf'),] * processor_num,
-                        'dma_in_time': ['inf',] * processor_num,
-                        'dma_out_time': ['inf',] * processor_num,
-                    })
+                    # Add node if new
+                    if node_name not in ndag.nodes():
+                        ndag.add_node(node_name, **{
+                            'original_node': row['task_name'],
+                            'index': row['instance'],
+                            'exe_time': [float('inf'),] * processor_num,
+                            'dma_in_time': ['inf',] * processor_num,
+                            'dma_out_time': ['inf',] * processor_num,
+                        })
 
-                    # Add task to reverse lookup.
-                    if row['task_name'] not in nnode_lookup:
-                        nnode_lookup[row['task_name']] = []
-                    if node_name not in nnode_lookup[row['task_name']]:
-                        nnode_lookup[row['task_name']].append(node_name)
+                        # Add task to reverse lookup.
+                        if row['task_name'] not in nnode_lookup:
+                            nnode_lookup[row['task_name']] = []
+                        if node_name not in nnode_lookup[row['task_name']]:
+                            nnode_lookup[row['task_name']].append(node_name)
 
-                # Update times
-                ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc']) + float(row['dma_in']) + float(row['dma_out'])
-                ndag.nodes[node_name]['dma_in_time'][accel_idx] = float(row['dma_in'])
-                ndag.nodes[node_name]['dma_out_time'][accel_idx] = float(row['dma_out'])
+                    # Update times
+                    ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc']) + float(row['dma_in']) + float(row['dma_out'])
+                    ndag.nodes[node_name]['dma_in_time'][accel_idx] = float(row['dma_in'])
+                    ndag.nodes[node_name]['dma_out_time'][accel_idx] = float(row['dma_out'])
+                except:
+                    pass
 
     # Add start and end
     ndag.add_node('T_s', **{
