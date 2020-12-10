@@ -456,7 +456,7 @@ def main(argv):
     # Process each model
     for model in MODELS:
         for arch in ARCHS:
-            if arch == 'vgg16' and 'parallel' in model:
+            if model == 'vgg16' and 'parallel' in arch:
                 continue
             runs.append((args, model, arch))
             # process_model(args, model, arch)
