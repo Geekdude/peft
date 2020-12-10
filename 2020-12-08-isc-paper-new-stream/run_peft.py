@@ -306,6 +306,30 @@ def verify_dag(dag):
 
     return dag
 
+def duplicate_dag(dag, number):
+    """Number of times to duplicate the DAG. A value of 1 is the default single dag."""
+    
+    if number <= 1:
+        return dag
+
+    ndag = nx.DiGraph(**dag.graph)
+    for i in range(number):
+        # Duplicate nodes
+        for node in dag.nodes:
+            if node == 'T_s' or node == 'T_e':
+                ndag.add_node(node, **dag.nodes[node])
+            else:
+                ndag.add_node(f'{node}_{i}', **dag.nodes[node])
+        
+        # Duplicate Edges
+        for edge in dag.edges:
+            u = f'{edge[0]}_{i}' if edge[0] != 'T_s' and edge[0] != 'T_e' else edge[0]
+            v = f'{edge[1]}_{i}' if edge[1] != 'T_s' and edge[1] != 'T_e' else edge[1]
+            ndag.add_edge(u, v, **dag.edges[edge])
+     
+    return ndag
+    
+
 def process_model(args, model, arch):
     """ Process each model to run peft."""
 
@@ -330,9 +354,13 @@ def process_model(args, model, arch):
     elif arch == 'vanilla':
         dag = update_dag_vanilla(args, dag, model)
 
-    dag = verify_dag(dag)
-
     print(f'Tasks (after update): {dag.number_of_nodes()}')
+
+    dag = duplicate_dag(dag, args.duplicate)
+
+    print(f'Tasks (after dup): {dag.number_of_nodes()}')
+
+    dag = verify_dag(dag)
 
     # Show the DAG
     if args.showDAG:
@@ -399,6 +427,9 @@ def generate_argparser():
     parser.add_argument('--l_overhead',
                         help='l overhead value.',
                         default=150000, type=float)
+    parser.add_argument('-d', '--duplicate',
+                        help='Number of times in include the DAG',
+                        default=1, type=int)
     return parser
 
 
