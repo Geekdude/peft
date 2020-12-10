@@ -13,6 +13,7 @@ import networkx as nx
 import functools
 import random
 import re
+import json
 import csv
 import tempfile
 import pandas as pd
@@ -110,99 +111,6 @@ ARCHS = [
             'vanilla',
          ]
 
-ACCELS = [
-    {
-        'name': 'conv1024',
-        'type': 'conv',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'conv512',
-        'type': 'conv',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'conv256',
-        'type': 'conv',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'conv128',
-        'type': 'conv',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'conv64',
-        'type': 'conv',
-        'size': 64,
-        'count': 1,
-    },
-    {
-        'name': 'bn1024',
-        'type': 'bn',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'bn512',
-        'type': 'bn',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'bn256',
-        'type': 'bn',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'bn128',
-        'type': 'bn',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'bn64',
-        'type': 'bn',
-        'size': 64,
-        'count': 1,
-    },
-    {
-        'name': 'dense1024',
-        'type': 'dense',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'dense512',
-        'type': 'dense',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'dense256',
-        'type': 'dense',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'dense128',
-        'type': 'dense',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'dense64',
-        'type': 'dense',
-        'size': 64,
-        'count': 1,
-    },
-]
-
 
 def run(command):
     """Print command then run command"""
@@ -248,7 +156,10 @@ def read_dep_file(filename):
     return dag
 
 
-def expand_accelerators(model):
+def expand_accelerators(args, model):
+    with open(args.accelerators) as fd:
+        ACCELS = json.load(fd)
+
     accels = {}
     accel_names = []
 
@@ -277,7 +188,7 @@ def update_dag_ranger(args, dag, model):
         dag.edges[edge]['weight'] = args.l_overhead
 
     # Computation Weights
-    accel_names, accel_details = expand_accelerators(model)
+    accel_names, accel_details = expand_accelerators(args, model)
     processor_num = len(accel_names)
 
     type_lookup = {'bn': "BatchNormalization", 'conv': 'Conv2D', 'dense': 'Dense'}
@@ -309,7 +220,7 @@ def update_dag_ranger(args, dag, model):
 
 def update_dag_vanilla(args, dag, model):
 
-    accel_names, accel_details = expand_accelerators(model)
+    accel_names, accel_details = expand_accelerators(args, model)
     processor_num = len(accel_names)
 
     # Get task -> type mapping
@@ -482,6 +393,9 @@ def generate_argparser():
     parser.add_argument("--output",
                         help="Folder to store output.",
                         type=str, default='output')
+    parser.add_argument('-a', '--accelerators',
+                        help='The excelerators to use in the experiment',
+                        default='all_accelerators.json', type=str)
     parser.add_argument('--l_overhead',
                         help='l overhead value.',
                         default=150000, type=float)

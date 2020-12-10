@@ -11,7 +11,7 @@ def update_dag_streaming_flat_serial_edge(args, dag, model):
     ndag = nx.DiGraph()
 
     from run_peft import expand_accelerators
-    accel_names, accel_details = expand_accelerators(model)
+    accel_names, accel_details = expand_accelerators(args, model)
     processor_num = len(accel_names)
     type_lookup = {'BatchNormalization': 'bn', 'Conv2D': 'conv', 'Dense': 'dense'}
 
