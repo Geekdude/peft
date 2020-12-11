@@ -43,7 +43,7 @@ def main(argv):
     # Parse the arguments
     parser = argparse.ArgumentParser(description="""Description""")
     parser.add_argument('-i', '--input', help='Input directory', required=True)
-    parser.add_argument('-o', '--output', help='Input directory', default='collect.csv')
+    parser.add_argument('-o', '--output', help='Output file', default='collect.csv')
     args = parser.parse_args(argv[1:])
 
     results = {}

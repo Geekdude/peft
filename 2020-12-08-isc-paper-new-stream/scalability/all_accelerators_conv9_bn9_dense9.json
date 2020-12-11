@@ -1,0 +1,92 @@
+[
+    {
+        "name": "conv1024",
+        "type": "conv",
+        "size": 1024,
+        "count": 9
+    },
+    {
+        "name": "conv512",
+        "type": "conv",
+        "size": 512,
+        "count": 9
+    },
+    {
+        "name": "conv256",
+        "type": "conv",
+        "size": 256,
+        "count": 9
+    },
+    {
+        "name": "conv128",
+        "type": "conv",
+        "size": 128,
+        "count": 9
+    },
+    {
+        "name": "conv64",
+        "type": "conv",
+        "size": 64,
+        "count": 9
+    },
+    {
+        "name": "conv1024",
+        "type": "conv",
+        "size": 1024,
+        "count": 9
+    },
+    {
+        "name": "conv512",
+        "type": "conv",
+        "size": 512,
+        "count": 9
+    },
+    {
+        "name": "conv256",
+        "type": "conv",
+        "size": 256,
+        "count": 9
+    },
+    {
+        "name": "conv128",
+        "type": "conv",
+        "size": 128,
+        "count": 9
+    },
+    {
+        "name": "conv64",
+        "type": "conv",
+        "size": 64,
+        "count": 9
+    },
+    {
+        "name": "conv1024",
+        "type": "conv",
+        "size": 1024,
+        "count": 9
+    },
+    {
+        "name": "conv512",
+        "type": "conv",
+        "size": 512,
+        "count": 9
+    },
+    {
+        "name": "conv256",
+        "type": "conv",
+        "size": 256,
+        "count": 9
+    },
+    {
+        "name": "conv128",
+        "type": "conv",
+        "size": 128,
+        "count": 9
+    },
+    {
+        "name": "conv64",
+        "type": "conv",
+        "size": 64,
+        "count": 9
+    }
+]

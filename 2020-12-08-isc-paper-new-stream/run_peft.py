@@ -106,8 +106,8 @@ ARCHS = [
             'ranger',
             'streaming_flat_serial_edge',
             'streaming_flat_serial_node',
-            'streaming_flat_parallel_edge',
-            'streaming_flat_parallel_node',
+            # 'streaming_flat_parallel_edge',
+            # 'streaming_flat_parallel_node',
             'vanilla',
          ]
 
