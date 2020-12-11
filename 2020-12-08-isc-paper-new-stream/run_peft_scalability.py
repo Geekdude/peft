@@ -4,6 +4,7 @@
 
 import argparse
 import sys
+import math
 import errno
 import os
 import glob
@@ -72,7 +73,7 @@ def main(argv):
     for r in runs:
         print(r)
     
-    with Pool(2) as p:
+    with Pool(math.ceil(len(runs)/2)) as p:
         p.starmap(run, runs)
 
     return 0
