@@ -30,62 +30,62 @@
         "count": 4
     },
     {
-        "name": "conv1024",
-        "type": "conv",
+        "name": "bn1024",
+        "type": "bn",
         "size": 1024,
         "count": 2
     },
     {
-        "name": "conv512",
-        "type": "conv",
+        "name": "bn512",
+        "type": "bn",
         "size": 512,
         "count": 2
     },
     {
-        "name": "conv256",
-        "type": "conv",
+        "name": "bn256",
+        "type": "bn",
         "size": 256,
         "count": 2
     },
     {
-        "name": "conv128",
-        "type": "conv",
+        "name": "bn128",
+        "type": "bn",
         "size": 128,
         "count": 2
     },
     {
-        "name": "conv64",
-        "type": "conv",
+        "name": "bn64",
+        "type": "bn",
         "size": 64,
         "count": 2
     },
     {
-        "name": "conv1024",
-        "type": "conv",
+        "name": "dense1024",
+        "type": "dense",
         "size": 1024,
         "count": 2
     },
     {
-        "name": "conv512",
-        "type": "conv",
+        "name": "dense512",
+        "type": "dense",
         "size": 512,
         "count": 2
     },
     {
-        "name": "conv256",
-        "type": "conv",
+        "name": "dense256",
+        "type": "dense",
         "size": 256,
         "count": 2
     },
     {
-        "name": "conv128",
-        "type": "conv",
+        "name": "dense128",
+        "type": "dense",
         "size": 128,
         "count": 2
     },
     {
-        "name": "conv64",
-        "type": "conv",
+        "name": "dense64",
+        "type": "dense",
         "size": 64,
         "count": 2
     }

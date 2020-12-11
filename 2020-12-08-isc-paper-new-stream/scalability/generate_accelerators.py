@@ -53,9 +53,9 @@ def generateConfig(tconv, tbn, tdense):
     for j in accelerator_sizes:
         all_config.append(getAccConfig(tconv, j, "conv"))
     for j in accelerator_sizes:
-        all_config.append(getAccConfig(tbn, j, "conv"))
+        all_config.append(getAccConfig(tbn, j, "bn"))
     for j in accelerator_sizes:
-        all_config.append(getAccConfig(tdense, j, "conv"))
+        all_config.append(getAccConfig(tdense, j, "dense"))
     fname = "all_accelerators_conv{}_bn{}_dense{}.json".format(tconv, tbn, tdense)
     with open(fname, "w") as fh:
         json.dump(all_config, fh, indent=4)

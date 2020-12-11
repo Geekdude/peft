@@ -67,7 +67,7 @@ def main(argv):
     files = glob.glob('scalability/*.json')
     for accel in files:
         output_folder = f'scalability_output/{args.output}/{os.path.splitext(os.path.basename(accel))[0]}_overhead{args.l_overhead:.0f}_dup{args.duplicate}'
-        runs.append(f'python3 run_peft.py --output {output_folder} --accelerators {accel} --l_overhead {args.l_overhead} --duplicate {args.duplicate}')
+        runs.append((f'python3 run_peft.py --output {output_folder} --accelerators {accel} --l_overhead {args.l_overhead} --duplicate {args.duplicate}',))
     
     for r in runs:
         print(r)
