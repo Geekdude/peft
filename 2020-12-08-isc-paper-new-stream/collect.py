@@ -59,7 +59,7 @@ def main(argv):
                     for row in reader:
                         if row['taskname'] == 'T_e':
                             results[model][arch] = row['end']
-            except:
+            except Exception as e:
                 pass
 
     # Build table

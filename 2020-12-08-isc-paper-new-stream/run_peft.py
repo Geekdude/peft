@@ -232,7 +232,10 @@ def update_dag_vanilla(args, dag, model):
         for row in reader:
             if (row['task'] == 'Start' or row['task'] == 'End'):
                 continue
-            dag.nodes[row['task']]['type'] = type_lookup[row['type']]
+            try:
+                dag.nodes[row['task']]['type'] = type_lookup[row['type']]
+            except Exception as e:
+                raise
 
     # Communication Weights
     with open(f'nostream/{model}/conv_nostream/communication_core1_1024conv_nostream.csv', newline='') as csvfile:
@@ -241,7 +244,10 @@ def update_dag_vanilla(args, dag, model):
             for item, value in row.items():
                 if item != 'Task' and value != '0':
                     task = row['Task']
-                    dag[task][item]['weight'] = float(value)
+                    try:
+                        dag[task][item]['weight'] = float(value)
+                    except Exception as e:
+                        raise
 
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
 
@@ -250,14 +256,17 @@ def update_dag_vanilla(args, dag, model):
     with open(f'nostream/{model}/no_stream_comp_only.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            # Add exe_time
-            if 'exe_time' not in dag.nodes[row['task']]:
-                dag.nodes[row['task']]['exe_time'] = [float('inf'),] * processor_num
+            try:
+                # Add exe_time
+                if 'exe_time' not in dag.nodes[row['task']]:
+                    dag.nodes[row['task']]['exe_time'] = [float('inf'),] * processor_num
 
-            for i, accel in enumerate(accel_names):
-                lookup_name = f"{type_lookup[accel_details[accel]['type']]}{accel_details[accel]['size']}"
-                exe_time = float(row[lookup_name])
-                dag.nodes[row['task']]['exe_time'][i] = exe_time + args.l_overhead if exe_time >= 0 else float('inf')
+                for i, accel in enumerate(accel_names):
+                    lookup_name = f"{type_lookup[accel_details[accel]['type']]}{accel_details[accel]['size']}"
+                    exe_time = float(row[lookup_name])
+                    dag.nodes[row['task']]['exe_time'][i] = exe_time + args.l_overhead if exe_time >= 0 else float('inf')
+            except Exception as e:
+                raise
 
     # Read init_comm_overhead
     for i, accel in enumerate(accel_names):
@@ -266,9 +275,12 @@ def update_dag_vanilla(args, dag, model):
         with open(filename, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                if dag.nodes[row['Task']]['type'] != accel_details[accel]['type']:
-                    continue
-                dag.nodes[row['Task']]['exe_time'][i] += float(row['InitTransferTime'])
+                try:
+                    if dag.nodes[row['Task']]['type'] != accel_details[accel]['type']:
+                        continue
+                    dag.nodes[row['Task']]['exe_time'][i] += float(row['InitTransferTime'])
+                except Exception as e:
+                    raise
 
     dag.graph['number_of_processors'] = processor_num
     dag.graph['processor_names'] = accel_names
@@ -302,8 +314,6 @@ def verify_dag(dag):
             print(f'Warning: {node} is missing a exe_time. Setting to zero.')
             dag.nodes[node]['exe_time'] = [0,] * dag.graph['number_of_processors']
 
-    # Add idle proc
-
     return dag
 
 def duplicate_dag(dag, number):
@@ -328,7 +338,7 @@ def duplicate_dag(dag, number):
             ndag.add_edge(u, v, **dag.edges[edge])
      
     return ndag
-    
+
 
 def process_model(args, model, arch):
     """ Process each model to run peft."""

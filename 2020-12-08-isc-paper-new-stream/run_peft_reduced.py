@@ -13,6 +13,7 @@ import networkx as nx
 import functools
 import random
 import re
+import json
 import csv
 import tempfile
 import pandas as pd
@@ -110,99 +111,6 @@ ARCHS = [
             'vanilla',
          ]
 
-ACCELS = [
-    {
-        'name': 'conv1024',
-        'type': 'conv',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'conv512',
-        'type': 'conv',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'conv256',
-        'type': 'conv',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'conv128',
-        'type': 'conv',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'conv64',
-        'type': 'conv',
-        'size': 64,
-        'count': 1,
-    },
-    {
-        'name': 'bn1024',
-        'type': 'bn',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'bn512',
-        'type': 'bn',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'bn256',
-        'type': 'bn',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'bn128',
-        'type': 'bn',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'bn64',
-        'type': 'bn',
-        'size': 64,
-        'count': 1,
-    },
-    {
-        'name': 'dense1024',
-        'type': 'dense',
-        'size': 1024,
-        'count': 1,
-    },
-    {
-        'name': 'dense512',
-        'type': 'dense',
-        'size': 512,
-        'count': 1,
-    },
-    {
-        'name': 'dense256',
-        'type': 'dense',
-        'size': 256,
-        'count': 1,
-    },
-    {
-        'name': 'dense128',
-        'type': 'dense',
-        'size': 128,
-        'count': 1,
-    },
-    {
-        'name': 'dense64',
-        'type': 'dense',
-        'size': 64,
-        'count': 1,
-    },
-]
-
 
 def run(command):
     """Print command then run command"""
@@ -248,7 +156,10 @@ def read_dep_file(filename):
     return dag
 
 
-def expand_accelerators(model):
+def expand_accelerators(args, model):
+    with open(args.accelerators) as fd:
+        ACCELS = json.load(fd)
+
     accels = {}
     accel_names = []
 
@@ -277,7 +188,7 @@ def update_dag_ranger(args, dag, model):
         dag.edges[edge]['weight'] = args.l_overhead
 
     # Computation Weights
-    accel_names, accel_details = expand_accelerators(model)
+    accel_names, accel_details = expand_accelerators(args, model)
     processor_num = len(accel_names)
 
     type_lookup = {'bn': "BatchNormalization", 'conv': 'Conv2D', 'dense': 'Dense'}
@@ -309,7 +220,7 @@ def update_dag_ranger(args, dag, model):
 
 def update_dag_vanilla(args, dag, model):
 
-    accel_names, accel_details = expand_accelerators(model)
+    accel_names, accel_details = expand_accelerators(args, model)
     processor_num = len(accel_names)
 
     # Get task -> type mapping
@@ -323,7 +234,7 @@ def update_dag_vanilla(args, dag, model):
                 continue
             try:
                 dag.nodes[row['task']]['type'] = type_lookup[row['type']]
-            except:
+            except Exception as e:
                 pass
 
     # Communication Weights
@@ -335,7 +246,7 @@ def update_dag_vanilla(args, dag, model):
                     task = row['Task']
                     try:
                         dag[task][item]['weight'] = float(value)
-                    except:
+                    except Exception as e:
                         pass
 
     type_lookup = {'bn': "BatchNormalizationNS", 'conv': 'Conv2DNS', 'dense': 'DenseNS'}
@@ -354,7 +265,7 @@ def update_dag_vanilla(args, dag, model):
                     lookup_name = f"{type_lookup[accel_details[accel]['type']]}{accel_details[accel]['size']}"
                     exe_time = float(row[lookup_name])
                     dag.nodes[row['task']]['exe_time'][i] = exe_time + args.l_overhead if exe_time >= 0 else float('inf')
-            except:
+            except Exception as e:
                 pass
 
     # Read init_comm_overhead
@@ -368,7 +279,7 @@ def update_dag_vanilla(args, dag, model):
                     if dag.nodes[row['Task']]['type'] != accel_details[accel]['type']:
                         continue
                     dag.nodes[row['Task']]['exe_time'][i] += float(row['InitTransferTime'])
-                except:
+                except Exception as e:
                     pass
 
     dag.graph['number_of_processors'] = processor_num
@@ -405,6 +316,7 @@ def verify_dag(dag):
 
     return dag
 
+
 def simplify_dag(args, dag):
     ndag = nx.DiGraph()
 
@@ -428,11 +340,34 @@ def simplify_dag(args, dag):
     return ndag
 
 
+def duplicate_dag(dag, number):
+    """Number of times to duplicate the DAG. A value of 1 is the default single dag."""
+    
+    if number <= 1:
+        return dag
+
+    ndag = nx.DiGraph(**dag.graph)
+    for i in range(number):
+        # Duplicate nodes
+        for node in dag.nodes:
+            if node == 'T_s' or node == 'T_e':
+                ndag.add_node(node, **dag.nodes[node])
+            else:
+                ndag.add_node(f'{node}_{i}', **dag.nodes[node])
+        
+        # Duplicate Edges
+        for edge in dag.edges:
+            u = f'{edge[0]}_{i}' if edge[0] != 'T_s' and edge[0] != 'T_e' else edge[0]
+            v = f'{edge[1]}_{i}' if edge[1] != 'T_s' and edge[1] != 'T_e' else edge[1]
+            ndag.add_edge(u, v, **dag.edges[edge])
+     
+    return ndag
+
+
 def process_model(args, model, arch):
     """ Process each model to run peft."""
 
     print(f'\n***Processing: {model} {arch}')
-
 
     # Read in the base dependencies
     dag = read_dep_file(f'model_dep_{model}.dep')
@@ -457,9 +392,13 @@ def process_model(args, model, arch):
     elif arch == 'vanilla':
         dag = update_dag_vanilla(args, dag, model)
 
-    dag = verify_dag(dag)
-
     print(f'Tasks (after update): {dag.number_of_nodes()}')
+
+    dag = duplicate_dag(dag, args.duplicate)
+
+    print(f'Tasks (after dup): {dag.number_of_nodes()}')
+
+    dag = verify_dag(dag)
 
     # Show the DAG
     if args.showDAG:
@@ -522,9 +461,15 @@ def generate_argparser():
     parser.add_argument("--output",
                         help="Folder to store output.",
                         type=str, default='output')
+    parser.add_argument('-a', '--accelerators',
+                        help='The excelerators to use in the experiment',
+                        default='all_accelerators.json', type=str)
     parser.add_argument('--l_overhead',
                         help='l overhead value.',
                         default=150000, type=float)
+    parser.add_argument('-d', '--duplicate',
+                        help='Number of times in include the DAG',
+                        default=1, type=int)
     return parser
 
 
@@ -551,6 +496,8 @@ def main(argv):
     # Process each model
     for model in MODELS:
         for arch in ARCHS:
+            if model == 'vgg16' and 'parallel' in arch:
+                continue
             # runs.append((args, model, arch))
             process_model(args, model, arch)
 

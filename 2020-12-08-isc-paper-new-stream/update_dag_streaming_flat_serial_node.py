@@ -25,8 +25,8 @@ def update_dag_streaming_flat_serial_node(args, dag, model):
                 continue
             try:
                 dag.nodes[row['task']]['type'] = type_lookup[row['type']]
-            except:
-                pass
+            except Exception as e:
+                raise
 
     nnode_lookup = {}
 
@@ -62,8 +62,8 @@ def update_dag_streaming_flat_serial_node(args, dag, model):
                     ndag.nodes[node_name]['exe_time'][accel_idx] = float(row['acc']) + float(row['dma_in']) + float(row['dma_out'])
                     ndag.nodes[node_name]['dma_in_time'][accel_idx] = float(row['dma_in'])
                     ndag.nodes[node_name]['dma_out_time'][accel_idx] = float(row['dma_out'])
-                except:
-                    pass
+                except Exception as e:
+                    raise
 
     # Add start and end
     ndag.add_node('T_s', **{
