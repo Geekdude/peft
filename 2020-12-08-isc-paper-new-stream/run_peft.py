@@ -343,6 +343,7 @@ def duplicate_dag(dag, number):
 def process_model(args, model, arch):
     """ Process each model to run peft."""
 
+    tick = time.perf_counter()
     print(f'\n***Processing: {model} {arch}')
 
     # Read in the base dependencies
@@ -416,6 +417,9 @@ def process_model(args, model, arch):
     # lookup.update({i:n for i, n in enumerate(dag.graph['processor_names'])})
     # peft.saveGanttChart(processor_schedules, f'{args.output}/{model}_{arch}_gantt', lookup)
 
+    # Same the time the run took.
+    with open(f'{args.output}/{model}_{arch}_time.txt', 'w') as fd:
+        fd.write(f'{time.perf_counter()-tick:.0f} seconds\n')
 
 def generate_argparser():
     parser = argparse.ArgumentParser(description="A tool for finding PEFT schedules for given DAG task graphs")
