@@ -104,6 +104,10 @@ def schedule_dag(dag,
             logger.debug("Root node was not the first node in the sorted list. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled first\n")
             idx = sorted_nodes.index(_self.root_node)
             sorted_nodes.insert(0, sorted_nodes.pop(idx))
+        if sorted_nodes[-1] != _self.end_node:
+            logger.debug("End node was not the last node in the sorted list. Must be a zero-cost and zero-weight placeholder node. Rearranging it so it is scheduled last\n")
+            idx = sorted_nodes.index(_self.end_node)
+            sorted_nodes.append(sorted_nodes.pop(idx))
         logger.debug(f"Scheduling tasks in this order: {sorted_nodes}")
         for node in sorted_nodes:
             if _self.task_schedules[node] is not None:
