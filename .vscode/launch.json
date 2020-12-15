@@ -211,7 +211,8 @@
             "args": [
                 // "--showDAG",
                 // "--showGantt",
-                "--output=vscode_out"
+                "--output=vscode_out",
+                "--a=scalability/all_accelerators_conv7_bn7_dense7.json"
             ]
         },
         {
@@ -225,6 +226,32 @@
                 // "--showDAG",
                 // "--showGantt",
                 "--output=vscode_out"
+            ]
+        },
+        {
+            "name": "Python V2: collect_scalability",
+            "type": "python",
+            "request": "launch",
+            "program": "collect_scalability.py",
+            "cwd": "/home/7ry/Data/Ranger/peft/2020-12-08-isc-paper-new-stream",
+            "env": {"DISPLAY": "localhost:10.0"},
+            "args": [
+                "--input=run2",
+            ]
+        },
+        {
+            "name": "Python V2: run_peft bug",
+            "type": "python",
+            "request": "launch",
+            "program": "run_peft.py",
+            "cwd": "/home/7ry/Data/Ranger/peft/2020-12-08-isc-paper-new-stream",
+            "env": {"DISPLAY": "localhost:10.0"},
+            "args": [
+                // "--showDAG",
+                // "--showGantt",
+                "--output=vscode_out",
+                "--a=scalability/all_accelerators_conv7_bn7_dense7.json",
+                "--d=2"
             ]
         },
     ]

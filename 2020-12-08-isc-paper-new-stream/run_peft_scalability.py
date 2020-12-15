@@ -69,11 +69,11 @@ def main(argv):
     for accel in files:
         output_folder = f'scalability_output/{args.output}/{os.path.splitext(os.path.basename(accel))[0]}_overhead{args.l_overhead:.0f}_dup{args.duplicate}'
         runs.append((f'python3 run_peft.py --output {output_folder} --accelerators {accel} --l_overhead {args.l_overhead} --duplicate {args.duplicate}',))
-    
+
     for r in runs:
         print(r)
-    
-    with Pool(math.ceil(len(runs)/2)) as p:
+
+    with Pool(math.ceil(len(runs))) as p:
         p.starmap(run, runs)
 
     return 0
