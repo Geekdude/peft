@@ -66,7 +66,10 @@ def main(argv):
                             print(filename)
                             with open(filename, newline='') as csvfile:
                                 reader = csv.DictReader(csvfile)
+                                tasks = 0
                                 for row in reader:
+                                    if row['taskname'] != 'T_s' and row['taskname'] != 'T_e' and 'idle' not in row['taskname']:
+                                        tasks += 1
                                     if row['taskname'] == 'T_e':
                                         results.append({
                                             'conv': conv,
@@ -77,8 +80,10 @@ def main(argv):
                                             'model': model,
                                             'arch': arch,
                                             'makespan': row['end'],
+                                            'tasks': None,
                                             'time': None
                                         })
+                                results[-1]['tasks'] = tasks
 
                             filename = f'{subdir}/{d}/{model}_{arch}_time.txt'
                             with open(filename) as fd:
@@ -92,7 +97,7 @@ def main(argv):
     
 
     with open(args.output, 'w', newline='') as csvfile:
-        fieldnames = ['conv', 'bn', 'dense', 'overhead', 'dup', 'model', 'arch', 'makespan', 'time']
+        fieldnames = ['conv', 'bn', 'dense', 'overhead', 'dup', 'model', 'arch', 'makespan', 'tasks', 'time']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(results)
