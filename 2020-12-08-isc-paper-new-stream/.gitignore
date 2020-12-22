@@ -2,3 +2,8 @@
 /run*/
 /vscode_out/
 /scalability_output/
+/output_gantt/
+collect*.csv
+run*.csv
+run*.tar.gz
+scalability*.tar.gz

@@ -415,6 +415,7 @@ def process_model(args, model, arch):
     # # Save Gantt
     # lookup = {-1: "Idle"}
     # lookup.update({i:n for i, n in enumerate(dag.graph['processor_names'])})
+    # del processor_schedules[-1]
     # peft.saveGanttChart(processor_schedules, f'{args.output}/{model}_{arch}_gantt', lookup)
 
     # Same the time the run took.
